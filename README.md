@@ -23,7 +23,7 @@ Backend:
 
     database_module:    # Модуль СУБД
         ---- __init__.py    
-        ---- engine__orm.py         # движок БД
+        ---- engine_users__orm.py   # движок БД для users
         ---- models__orm.py         # ORM-модели БД (ТАБЛИЦЫ БД)
         ---- crud__orm.py           # Функции создания, получения, обновления и удаления данных в БД
 
