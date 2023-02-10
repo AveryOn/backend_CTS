@@ -1,4 +1,4 @@
-# backend_CTS
+# backend_CTS (В разработке)
 backend for an online store - Current Target Sale
 
 ### Архитектура Бэкенда
