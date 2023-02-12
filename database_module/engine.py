@@ -33,3 +33,18 @@ engine_products = create_engine(
 
 session_products = sessionmaker(autoflush=False, autocommit=False, bind=engine_users)
 BaseProducts = declarative_base()
+
+
+####################################################################################################
+#                                   ДВИЖОК ДЛЯ MESSANGER БД                                        #
+####################################################################################################
+
+engine_messanger = create_engine(
+    'sqlite+pysqlite:///DB/PRODUCTS.db',
+    echo=True,
+    future=True,
+    connect_args={"check_same_thread": False}
+)
+
+session_messanger = sessionmaker(autoflush=False, autocommit=False, bind=engine_users)
+BaseMessanger = declarative_base()

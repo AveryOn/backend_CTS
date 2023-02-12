@@ -13,7 +13,10 @@ from passlib.context import CryptContext
 # Импорт даты для работы с токенами
 from datetime import datetime, timedelta
 
-
-
-
+# Модель для работы с ХЕШЕм паролей (валидация и создание)
 passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+# Функция для хеширования пароля пользователя. При его смене или создания нового пользователя
+def hash_password(password: str) -> str:
+    return passlib.hash(password)
