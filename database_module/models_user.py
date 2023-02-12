@@ -25,9 +25,9 @@ class User(BaseUsers):
     # служебный метод для отладки
     def __repr__(self):
         return f"""User(
-            id={self.id!r}, 
-            username={self.username!r}, 
-            email={self.email!r}, 
+            id={self.id!r},
+            username={self.username!r},
+            email={self.email!r},
             name={self.name!r},
             lastname={self.lastname!r},
             image={self.image!r},

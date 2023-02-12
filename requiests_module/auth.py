@@ -6,7 +6,7 @@ from fastapi import APIRouter
 
 auth = APIRouter(
     prefix='/auth',
-    tags=["users"],
+    tags=["auth"],
 )
 
 @auth.get('/')

@@ -8,13 +8,13 @@ from pydantic import BaseModel
 class UserBase(BaseModel):
     pass
 
+
 # Модель для создания нового пользователя
 class UserCreate(UserBase):
     email: str
     username: str
     password: str
-    name: str | None=None
-    lastname: str | None=None
+
 
 # Модель для чтения пользователя из БД / Возврата на клиент
 class User(UserBase):
@@ -29,3 +29,4 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+        
