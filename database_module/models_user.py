@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from engine import BaseUsers
+from database_module.engine import BaseUsers
 
 # ТАБЛИЦА С ПОЛЬЗОВАТЕЛЯМИ
 class User(BaseUsers):

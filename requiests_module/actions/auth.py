@@ -13,7 +13,7 @@ from passlib.context import CryptContext
 # Импорт даты для работы с токенами
 from datetime import datetime, timedelta
 
-# Модель для работы с ХЕШЕм паролей (валидация и создание)
+# Модель для работы с ХЕШЕМ паролей (валидация и создание)
 passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 

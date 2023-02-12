@@ -26,6 +26,7 @@ class User(UserBase):
     image: str | None=None
     sex: str | None=None
     is_active: bool | None=None
+    chats_id: int | None=None
 
     class Config:
         orm_mode = True

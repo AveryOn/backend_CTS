@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 ####################################################################################################
 
 engine_users = create_engine(
-    'sqlite+pysqlite:///DB/USERS.db',
+    'sqlite+pysqlite:///database_module/DB/USERS.db',
     echo=True,
     future=True,
     connect_args={"check_same_thread": False}
@@ -25,7 +25,7 @@ BaseUsers = declarative_base()
 ####################################################################################################
 
 engine_products = create_engine(
-    'sqlite+pysqlite:///DB/PRODUCTS.db',
+    'sqlite+pysqlite:///database_module/DB/PRODUCTS.db',
     echo=True,
     future=True,
     connect_args={"check_same_thread": False}
@@ -40,7 +40,7 @@ BaseProducts = declarative_base()
 ####################################################################################################
 
 engine_messanger = create_engine(
-    'sqlite+pysqlite:///DB/PRODUCTS.db',
+    'sqlite+pysqlite:///database_module/DB/MESSANGER.db',
     echo=True,
     future=True,
     connect_args={"check_same_thread": False}

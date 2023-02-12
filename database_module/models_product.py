@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from engine import BaseProducts
+from database_module.engine import BaseProducts
 
 
 # ТАБЛИЦА С ТОВАРОМ

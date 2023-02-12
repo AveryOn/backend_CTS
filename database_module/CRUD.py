@@ -3,8 +3,9 @@
 ####################################################################################################
 
 # Импорт ORM-таблиц
-from models_user import User, UserCart, UserChat, Message
-from models_product import Product, Comment
+from database_module.models_user import User, UserCart
+from database_module.models_product import Product, Comment
+from database_module.models_messanger import UserChat, Message
 
 # Импорт Pydantic-моделей
 from schemas_module import user, user_cart, user_chat, product, message, comment
@@ -21,7 +22,11 @@ from sqlalchemy import select, update
 
 # Создание пользователя и корзины товаров
 
-def create_user(db: Session, user: user.UserCreate) -> user.User:
+def create_user(db: Session, user: user.UserCreate):
     hashed_password = auth.hash_password(user.password)
     user_db = User(email = user.email, username = user.username, hashed_password = hashed_password)
-
+    db.add(user_db)
+    print(user_db)
+    db.commit()
+    db.refresh(user_db)
+    return user_db

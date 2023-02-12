@@ -2,7 +2,7 @@
 
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
-from engine import BaseMessanger
+from database_module.engine import BaseMessanger
 
 
 # ТАБЛИЦА ЧАТОВ ПОЛЬЗОВАТЕЛЕЙ
