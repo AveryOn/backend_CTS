@@ -19,6 +19,7 @@ from requiests_module.actions import auth
 # Импорт инструментов с sqlalchemy
 from sqlalchemy.orm import Session
 from sqlalchemy import select, update
+from sqlalchemy.exc import NoResultFound
 
 
 #===========>>>   ВЗАИМОДЕЙСТВИЕ С БАЗОЙ ДАННЫХ  -  USERS.db   <<<==================
@@ -35,6 +36,23 @@ def create_user(db: Session, user: user.UserCreate):
     db.commit()
     db.refresh(new_cart)
     return new_user
+
+# Получение данных пользователя по логину
+def get_user(db: Session, login: str) -> User:
+    # Получение пользователя по логину. Логином может быть как email, так и username, поэтому первый блок try->except
+    # нужен для поиска пользователя по username, а второй вложенный блок try->except для получения по email
+
+    # Получение по username
+    try:
+        return db.execute(select(User).filter_by(username = login)).scalar_one()
+    except NoResultFound:
+        # Получение по email
+        try:
+            return db.execute(select(User).filter_by(email = login)).scalar_one()
+        except NoResultFound:
+            # Поднимает исключение если пользователь с таким логином не найден
+            raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
+
 
 
 # Обновление данных пользователя
