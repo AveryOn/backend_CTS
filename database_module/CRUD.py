@@ -2,6 +2,9 @@
 #         МОДУЛЬ ВЗАИМОДЕЙСТВИЯ С БД. ПОЛУЧЕНИЕ /ОБНОВЛЕНИЕ /УДАЛЕНИЕ /СОЗДАНИЕ ДАННЫХ В БД        #
 ####################################################################################################
 
+# Инструментов с FastAPI
+from fastapi import HTTPException 
+
 # Импорт ORM-таблиц
 from database_module.models_user import User, UserCart, ServicePerson
 from database_module.models_product import Product, Comment
@@ -35,21 +38,20 @@ def create_user(db: Session, user: user.UserCreate):
 
 
 # Создание нового сотрудника рабочего персонала
-def create_service_person(db: Session, user: user.ServicePersonCreate):
-    hashed_password = auth.hash_password(user.password)
+def create_service_person(db: Session, service_person: user.ServicePersonCreate) -> user.ServicePerson:
+    hashed_password = auth.hash_password(service_person.password)
     new_service_person = ServicePerson(
-        UUID = user.UUID,
-        email = user.email, 
-        name = user.name,
-        lastname = user.lastname,
-        username = user.username, 
+        UUID = service_person.UUID,
+        role = service_person.role,
+        email = service_person.email, 
+        name = service_person.name,
+        lastname = service_person.lastname,
+        username = service_person.username, 
         hashed_password = hashed_password,
-        # allows = user.allows,
-        SECRET_KEY = user.SECRET_KEY,
-        sex = user.sex
+        # allows = service_person.allows,
+        sex = service_person.sex
     )
     db.add(new_service_person)
     db.commit()
     db.refresh(new_service_person)
     return new_service_person
-

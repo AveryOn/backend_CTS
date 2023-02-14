@@ -50,6 +50,7 @@ class ServicePersonBase(BaseModel):
 # Модель для создания нового сотрудника. Создать аккаунт сотрудника может только владелец
 class ServicePersonCreate(ServicePersonBase):
     UUID: str
+    role: str
     email: str
     name: str
     lastname: str
@@ -60,13 +61,14 @@ class ServicePersonCreate(ServicePersonBase):
     sex: str
 
 
-# Модель для чтения пользователя из БД / Возврата на клиент
+# Модель для чтения сотрудника из БД / Возврата на клиент
 class ServicePerson(ServicePersonBase):
     id: int
+    UUID: str
     username: str
     email: str
     role: str
-    allows: dict
+    # allows: dict | None=None
     name: str
     lastname: str
     image: str | None=None

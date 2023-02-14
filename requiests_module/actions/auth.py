@@ -20,3 +20,7 @@ passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Функция для хеширования пароля пользователя. При его смене или создания нового пользователя
 def hash_password(password: str) -> str:
     return passlib.hash(password)
+
+# Функция верификации паролей
+def verify_password(input_password: str, hashed_password: str):
+    return passlib.verify(input_password, hashed_password)
