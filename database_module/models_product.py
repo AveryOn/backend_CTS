@@ -1,7 +1,9 @@
 # ORM-МОДЕЛИ ДЛЯ БАЗЫ ДАННЫХ ТОВАРА (PRODUCTS)
 
+# Импорт инструментов из sqlalchemy
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+# Импорт ядра BaseProducts для создания таблиц БД PRODUCTS
 from database_module.engine import BaseProducts
 
 

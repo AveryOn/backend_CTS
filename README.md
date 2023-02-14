@@ -7,7 +7,7 @@ https://github.com/AveryOn/backend_CTS  -  github.com
 
 Backend -> (Архитектура):
 
-    requests_module     # Основной модуль для работы и связи с фронтендом
+    requests_module     # Основной модуль для работы и связи с клиентом
         ---- __init__.py
         ---- main.py               # Главный связующий модуль (Обьединяет все маршруты в app)
         ---- auth.py               # Авторизация, регистрация и пр.

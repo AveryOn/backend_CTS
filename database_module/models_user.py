@@ -1,7 +1,9 @@
 # ORM-МОДЕЛИ ДЛЯ БАЗЫ ДАННЫХ ПОЛЬЗОВАТЕЛЕЙ (USERS)
 
+# Импорт инструментов из sqlalchemy
 from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
+# Импорт ядра BaseUsers для создания таблиц БД USERS
 from database_module.engine import BaseUsers
 
 # ТАБЛИЦА С ПОЛЬЗОВАТЕЛЯМИ

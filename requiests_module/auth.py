@@ -2,11 +2,20 @@
 #                          МАРШРУТ ДЛЯ ОПЕРАЦИЙ С АУТЕНТИФИКАЦИЕЙ                        #
 ##########################################################################################
 
+# Инструменты FastAPI
 from fastapi import APIRouter, Depends
-from schemas_module.user import UserCreate, User
-from database_module import CRUD
-from requiests_module.actions import sessions
+
+# Инструменты SqlAlchemy
 from sqlalchemy.orm import Session
+
+# Импорт Функций для взаимодействия с Базами Данных
+from database_module import CRUD
+
+# Импорт Моделей Pydantic
+from schemas_module.user import UserCreate, User
+
+# Импорт Модуля Actions
+from requiests_module.actions import sessions 
 
 auth = APIRouter(
     tags=["auth"],

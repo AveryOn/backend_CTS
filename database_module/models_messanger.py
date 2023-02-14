@@ -1,7 +1,9 @@
 # ORM-МОДЕЛИ ДЛЯ БАЗЫ ДАННЫХ ПОЛЬЗОВАТЕЛЕЙ (MESSANGER)
 
+# Импорт инструментов из sqlalchemy
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
+# Импорт ядра BaseMessanger для создания таблиц БД MESSANGER
 from database_module.engine import BaseMessanger
 
 

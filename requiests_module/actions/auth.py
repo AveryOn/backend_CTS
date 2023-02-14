@@ -2,7 +2,7 @@
 #                               МОДУЛЬ ЗАВИСИМОСТЕЙ ДЛЯ АВТОРИЗАЦИИ                                #
 ####################################################################################################
 
-# Импорт Вспомогательных тулов с fastapi
+# Импорт инструментов с fastapi
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 

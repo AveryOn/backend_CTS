@@ -2,6 +2,7 @@
 #                                 МОДЕЛЬ PYDANTIC ДЛЯ ПОЛЬЗОВАТЕЛЯ                                 #
 ####################################################################################################
 
+# Инструменты pydantic
 from pydantic import BaseModel
 
 # Модель нигде не используется играет роль фундамента для обьекта user
@@ -28,6 +29,7 @@ class User(UserBase):
     is_active: bool | None=None
     chats_id: int | None=None
 
+    # orm_mode для корректного взаимодействия с БД
     class Config:
         orm_mode = True
         
