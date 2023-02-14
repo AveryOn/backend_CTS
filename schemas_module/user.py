@@ -11,6 +11,14 @@ class UserBase(BaseModel):
     pass
 
 
+# Модель для получения входа в свою учетную запись (личный кабинет) для всех Пользователей
+class UserLogin(UserBase):
+    username: str
+    password: str
+
+    class Config:
+        orm_mode = True
+
 # Модель для создания нового пользователя
 class UserCreate(UserBase):
     email: str

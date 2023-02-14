@@ -54,7 +54,6 @@ def get_user(db: Session, login: str) -> User:
             raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
 
 
-
 # Обновление данных пользователя
 def user_update():
     pass
