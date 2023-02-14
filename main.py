@@ -6,7 +6,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Импорт 
+# Импорт отдельных маршрутов с операциями для путей
+from requiests_module.owner import owner         # Модуль операций Владельца
 from requiests_module.users import users         # Модуль операций с Пользователями
 from requiests_module.auth import auth         # Модуль операций с Аутентификацией
 from requiests_module.messanger import messanger        # Модуль операций с Чатами и Сообщениями
@@ -15,11 +16,12 @@ from requiests_module.products import products           # Модуль опер
 
 app = FastAPI()
 
-# Связывает все маршруты
+# Связывает все маршруты в один роутер
 app.include_router(users)
 app.include_router(auth)
 app.include_router(messanger)
 app.include_router(products)
+app.include_router(owner)
 
 
 # Ресурсы которым разрешено получать доступ к данному приложению (Серверу) согласно политике CORS

@@ -1,5 +1,5 @@
 ##########################################################################################
-#                          МАРШРУТ ДЛЯ ОПЕРАЦИЙ С АУТЕНТИФИКАЦИЕЙ                        #
+#                          МАРШРУТ ДЛЯ ОПЕРАЦИЙ ВЛАДЕЛЬЦА СЕРВИСА                        #
 ##########################################################################################
 
 # Инструменты FastAPI
@@ -17,19 +17,20 @@ from schemas_module.user import UserCreate, User
 # Импорт Модуля Actions
 from requiests_module.actions import sessions 
 
-auth = APIRouter(
-    tags=["auth"],
+owner = APIRouter(
+    prefix='/owner',
+    tags=["owner"],
 )
 
+# password: '$2b$12$6Oafob5Y4Pe1ZYqF.FIN8eI3u5KzOzMGKNpVcm.yhAzPw787lumXO'
+# UUID: '53f48706-4fed-4251-b3ec-2d89bc386eab'
 
-# Создание нового пользователя
-@auth.post('/registration/', response_model=User)
+
+# Создание нового сотрудника
+@owner.post('/create-new-person/', response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
     return CRUD.create_user(db=db, user=user)
 
-
-# Обновление данных пользователя
-@auth.patch('/user_update/{user_id}/')
-def update_user(user_id: int):
-    return user_id
-
+@owner.get('/create-new-person/')
+def get_some():
+    return '200 ok'

@@ -13,6 +13,7 @@ class User(BaseUsers):
     id = Column(Integer, primary_key=True, index=True)      # первичный ключ (идентификатор)  (АВТОМАТИЧЕСКИЙ)
     username = Column(String, unique=True, index=True)      # Никнэйм пользователя  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     email = Column(String, unique=True, index=True)     # Эл. почта  (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    role = Column(String, index=True, default='user')       # Роль пользователя в систиеме. Всего 3 роли: 1) manager, 2) owner, 3) user
     name = Column(String)       #  Имя пользоваателя  (НЕОБЯЗАТЕЛЬНЫЙ)
     lastname = Column(String)       # Фамилия пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
@@ -26,15 +27,16 @@ class User(BaseUsers):
     # служебный метод для отладки
     def __repr__(self):
         return f"""User(
-            id={self.id!r},
-            username={self.username!r},
-            email={self.email!r},
-            name={self.name!r},
-            lastname={self.lastname!r},
-            image={self.image!r},
-            sex={self.sex!r},
-            hashed_password={self.hashed_password!r},
-            is_active={self.is_active!r},
+        id={self.id!r},
+        username={self.username!r},
+        email={self.email!r},
+        role={self.role!r},
+        name={self.name!r},
+        lastname={self.lastname!r},
+        image={self.image!r},
+        sex={self.sex!r},
+        hashed_password={self.hashed_password!r},
+        is_active={self.is_active!r},
         )"""
 
 
@@ -51,6 +53,43 @@ class UserCart(BaseUsers):
     # служебный метод для отладки
     def __repr__(self):
         return f"""UserCart( id={self.id!r}, owner_id={self.owner_id!r}, data={self.data!r} )"""
+
+        
+# ТАБЛИЦА СЛУЖЕБНОГО ПЕРСОНАЛА
+class ServicePerson(BaseUsers):
+    __tablename__ = "service_person"
+
+    id = Column(Integer, primary_key=True, index=True)      # первичный ключ (идентификатор)  (АВТОМАТИЧЕСКИЙ)
+    UUID = Column(String, unique=True, index=True)      # уникальный идентификатор сотрудника (АВТОМАТИЧЕСКИЙ)
+    username = Column(String, unique=True, index=True)      # Никнэйм пользователя  (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    email = Column(String, unique=True, index=True)     # Эл. почта  (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    role = Column(String, index=True)       # Роль пользователя в систиеме. Допустимые роли: 1) manager, 2) owner (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    allows = Column(String)     # Допустимые права для работы с магазином (НЕОБЯЗАТЕЛЬНЫЙ)
+    name = Column(String)       #  Имя пользоваателя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    lastname = Column(String)       # Фамилия пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    sex = Column(String)        # Пол пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    hashed_password = Column(String)        # Хеш пароля  (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    chats_id = Column(String)       # Массив с id чатов которые есть у данного пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    is_active = Column(Boolean, default=True)       # Флаг - активен ли пользователь (эксперементальный атрибут)  (НЕОБЯЗАТЕЛЬНЫЙ)
+
+    # служебный метод для отладки
+    def __repr__(self):
+        return f"""User(
+        id={self.id!r},
+        username={self.username!r},
+        email={self.email!r},
+        role={self.role!r},
+        allows={self.allows!r},
+        name={self.name!r},
+        lastname={self.lastname!r},
+        image={self.image!r},
+        sex={self.sex!r},
+        hashed_password={self.hashed_password!r},
+        is_active={self.is_active!r},
+        )"""
+
+
 
 
 

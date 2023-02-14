@@ -3,7 +3,7 @@
 ####################################################################################################
 
 # Импорт ORM-таблиц
-from database_module.models_user import User, UserCart
+from database_module.models_user import User, UserCart, ServicePerson
 from database_module.models_product import Product, Comment
 from database_module.models_messanger import UserChat, Message
 
@@ -23,9 +23,33 @@ from sqlalchemy import select, update
 # Создание пользователя и корзины товаров
 def create_user(db: Session, user: user.UserCreate):
     hashed_password = auth.hash_password(user.password)
-    user_db = User(email = user.email, username = user.username, hashed_password = hashed_password)
-    db.add(user_db)
-    print(user_db)
+    new_user = User(email = user.email, username = user.username, hashed_password = hashed_password)
+    db.add(new_user)
     db.commit()
-    db.refresh(user_db)
-    return user_db
+    db.refresh(new_user)
+    new_cart = UserCart(owner_id = new_user.id, data = '[]')
+    db.add(new_cart)
+    db.commit()
+    db.refresh(new_cart)
+    return new_user
+
+
+# Создание нового сотрудника рабочего персонала
+def create_service_person(db: Session, user: user.ServicePersonCreate):
+    hashed_password = auth.hash_password(user.password)
+    new_service_person = ServicePerson(
+        UUID = user.UUID,
+        email = user.email, 
+        name = user.name,
+        lastname = user.lastname,
+        username = user.username, 
+        hashed_password = hashed_password,
+        # allows = user.allows,
+        SECRET_KEY = user.SECRET_KEY,
+        sex = user.sex
+    )
+    db.add(new_service_person)
+    db.commit()
+    db.refresh(new_service_person)
+    return new_service_person
+
