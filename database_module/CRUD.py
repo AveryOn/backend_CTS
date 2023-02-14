@@ -37,6 +37,13 @@ def create_user(db: Session, user: user.UserCreate):
     return new_user
 
 
+# Обновление данных пользователя
+def user_update():
+    pass
+
+#===========>>>  БЛОК ОПЕРАЦИЙ ВЛАДЕЛЬЦА  <<<==================
+
+
 # Создание нового сотрудника рабочего персонала
 def create_service_person(db: Session, service_person: user.ServicePersonCreate) -> user.ServicePerson:
     hashed_password = auth.hash_password(service_person.password)

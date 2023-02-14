@@ -17,6 +17,9 @@ from schemas_module.user import ServicePerson, ServicePersonCreate
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
 
+
+# Создание экземпляра маршрута, все пути которые относятся к этому маршруту 
+# будут начинаться с /owner
 owner = APIRouter(
     prefix='/owner',
     tags=["owner"],
@@ -37,6 +40,7 @@ SECRET_KEY = '$2b$12$KPH.9tF5ycOszX5TI7CzkuausE30Os2M4NQ3lOcYGAnKXDDUef9LS'
 # Создание нового сотрудника
 @owner.post('/create-new-person/', response_model=ServicePerson)
 def create_service_person(service_person: ServicePersonCreate, db: Session = Depends(sessions.get_db_USERS)):
+    # Проверка делает сравнение хэша ключа владельца и того ключа который пришел с клиента и если они равны то блок выполняется
     if (auth.verify_password(input_password = service_person.SECRET_KEY, hashed_password = SECRET_KEY)):
         new_person = CRUD.create_service_person(db=db, service_person=service_person)
         return new_person

@@ -28,8 +28,4 @@ def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
     return CRUD.create_user(db=db, user=user)
 
 
-# Обновление данных пользователя
-@auth.patch('/user_update/{user_id}/')
-def update_user(user_id: int):
-    return user_id
 
