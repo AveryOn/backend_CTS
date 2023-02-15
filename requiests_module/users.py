@@ -94,8 +94,7 @@ def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(se
 @user.patch('/user-update-password/{user_id}/')
 def update_user_password(user_id: int, new_data: UserChangePassword, db: Session = Depends(sessions.get_db_USERS)) -> dict:
     try:
-        CRUD.update_user_password(db=db, new_data=new_data, user_id=user_id)
-        return {"response_status": 'Successful!'}
+        return CRUD.update_user_password(db=db, new_data=new_data, user_id=user_id)
     except:
         raise HTTPException(status_code=401, detail="Не удалось обновить пароль!")
 

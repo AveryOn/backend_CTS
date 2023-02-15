@@ -27,53 +27,8 @@ from sqlalchemy.exc import NoResultFound
 
 #===========>>>   ВЗАИМОДЕЙСТВИЕ С БАЗОЙ ДАННЫХ  -  USERS.db   <<<==================
 
-# Создание пользователя и корзины товаров
-def create_user(db: Session, user: user.UserCreate):
-    hashed_password = auth.hash_password(user.password)
-    new_user = User(email = user.email, username = user.username, hashed_password = hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    new_cart = UserCart(owner_id = new_user.id, data = '[]')
-    db.add(new_cart)
-    db.commit()
-    db.refresh(new_cart)
-    return new_user
 
-
-# Удаление ПОЛЬЗОВАТЕЛЯ с базы данных USERS
-def delete_user(db: Session, user_id: int) -> None:
-    try:
-        user = db.get(User, user_id)
-        db.delete(user)
-        db.commit()
-    except:
-        raise HTTPException(status_code=400, detail=f"Не удалось выполнить DELETE-запрос, пользователь {user.username} не удален")        
-
-# Получение данных ПОЛЬЗОВАТЕЛЯ по логину
-def get_user(db: Session, login: str) -> User:
-    # Получение пользователя по логину. Логином может быть как email, так и username, поэтому первый блок try->except
-    # нужен для поиска пользователя по username, а второй вложенный блок try->except для получения по email
-
-    # Получение по username
-    try:
-        return db.execute(select(User).filter_by(username = login)).scalar_one()
-    except NoResultFound:
-        # Получение по email
-        try:
-            return db.execute(select(User).filter_by(email = login)).scalar_one()
-        except NoResultFound:
-            # Поднимает исключение если пользователь с таким логином не найден
-            raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
-
-
-# Получение данных ПОЛЬЗОВАТЕЛЯ по идентификатору (первичноу ключу БД)
-def get_user_by_id(db: Session, id: int) -> user.User:
-    try:
-        return db.get(User, id)
-    except:
-        raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
-
+# ===============================>>> БЛОК ОПЕРАЦИЙ С КОРЗИНОЙ <<<=============================================
 
 # Получение корзины текущего ПОЛЬЗОВАТЕЛЯ 
 def get_user_cart(db: Session, user_id: int) -> user.UserCart:
@@ -131,17 +86,77 @@ def remove_cart_product(db: Session, user_id: int, update_cart: list) -> dict:
         return {"status_response": "Не удалось удалить товар с корзины!"}
 
 
-# Обновление пароля ПОЛЬЗОВАТЕЛЯ
-def update_user_password(db: Session, new_data: user.UserChangePassword, user_id: int) -> None:
-    # Обновление password, если пришло в запросе new_data
-    if not new_data.password is None:
+# ===============================>>> БЛОК ОПЕРАЦИЙ ПОЛЬЗОВАТЕЛЕЙ <<<=============================================
+
+
+# Создание пользователя и корзины товаров
+def create_user(db: Session, user: user.UserCreate):
+    hashed_password = auth.hash_password(user.password)
+    new_user = User(email = user.email, username = user.username, hashed_password = hashed_password)
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+    new_cart = UserCart(owner_id = new_user.id, data = '[]')
+    db.add(new_cart)
+    db.commit()
+    db.refresh(new_cart)
+    return new_user
+
+
+# Удаление ПОЛЬЗОВАТЕЛЯ с базы данных USERS
+def delete_user(db: Session, user_id: int) -> None:
+    try:
         user = db.get(User, user_id)
-        hashed_password = auth.hash_password(new_data.password)
-        user.hashed_password = hashed_password
-        db.execute(update(User).where(User.id == user_id).values(
-            hashed_password = hashed_password
-        ))
+        db.delete(user)
         db.commit()
+    except:
+        raise HTTPException(status_code=400, detail=f"Не удалось выполнить DELETE-запрос, пользователь {user.username} не удален")        
+
+
+# Получение данных ПОЛЬЗОВАТЕЛЯ по логину
+def get_user(db: Session, login: str) -> User:
+    # Получение пользователя по логину. Логином может быть как email, так и username, поэтому первый блок try->except
+    # нужен для поиска пользователя по username, а второй вложенный блок try->except для получения по email
+
+    # Получение по username
+    try:
+        return db.execute(select(User).filter_by(username = login)).scalar_one()
+    except NoResultFound:
+        # Получение по email
+        try:
+            return db.execute(select(User).filter_by(email = login)).scalar_one()
+        except NoResultFound:
+            # Поднимает исключение если пользователь с таким логином не найден
+            raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
+
+
+# Получение данных ПОЛЬЗОВАТЕЛЯ по идентификатору (первичноу ключу БД)
+def get_user_by_id(db: Session, id: int) -> user.User:
+    try:
+        return db.get(User, id)
+    except:
+        raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
+
+
+# Обновление пароля ПОЛЬЗОВАТЕЛЯ
+def update_user_password(db: Session, new_data: user.UserChangePassword, user_id: int) -> dict:
+    # Обновление password, если пришло в запросе new_data
+    try:
+        if not new_data.password is None:
+            user = db.get(User, user_id)
+            if(not auth.verify_password(new_data.password, user.hashed_password)):
+                hashed_password = auth.hash_password(new_data.password)
+                user.hashed_password = hashed_password
+                db.execute(update(User).where(User.id == user_id).values(
+                    hashed_password = hashed_password
+                ))
+                db.commit()
+                return {"response_status": "Пароль успешно обновлен!"}
+            else:
+                return {"response_status": "Не удалось обновить пароль! Этот пароль уже установлен!"}
+    except:
+        return {"response_status": "Не удалось обновить пароль!"}
+
 
 # Обновление нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
 def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User) -> user.User:
@@ -181,6 +196,9 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User)
     return user
 
 
+# ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ <<<=============================================
+
+
 # Получение данных СОТРУДНИКА по логину
 def get_service_person(db: Session, username: str) -> user.ServicePerson:
     # Получение пользователя по username
@@ -189,12 +207,10 @@ def get_service_person(db: Session, username: str) -> user.ServicePerson:
     except NoResultFound:
         # Поднимает исключение если СОТРУДНИК с таким username не найден
         raise HTTPException(status_code=404, detail=f"Пользователь с логином '{username}' не найден!")
+ 
 
-# Обновление данных пользователя
-def user_update():
-    pass
 
-#===========>>>  БЛОК ОПЕРАЦИЙ ВЛАДЕЛЬЦА  <<<==================
+# ===============================>>> БЛОК ОПЕРАЦИЙ ВЛАДЕЛЬЦА <<<=============================================
 
 
 # Создание нового сотрудника рабочего персонала
