@@ -5,6 +5,9 @@
 # Инструменты FastAPI
 from fastapi import APIRouter, Depends, HTTPException
 
+# Инструменты pydantic
+from pydantic import BaseModel
+
 # Импорт Моделей Pydantic
 from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword, ProductCart
 
@@ -25,6 +28,9 @@ user = APIRouter(
     tags=["user"],
 )
 
+# ===============================>>> ОПЕРАЦИИ С КОРЗИНОЙ <<<============================================= 
+
+
 # Получение данных о коризне ПОЛЬЗОВАТЕЛЯ
 @user.get('/{user_id}/cart/')
 def get_cart_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)):
@@ -34,7 +40,7 @@ def get_cart_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)):
         raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя") 
 
 
-# Добавление товара в корзину ПОЛЬЗОВАТЕЛЯ. Используется токен доступа в заголовке
+# Добавление товара в корзину ПОЛЬЗОВАТЕЛЯ
 @user.patch('/add-product/{login}/')
 def add_cart_products(login: str, product: dict | ProductCart,  db: Session = Depends(sessions.get_db_USERS)) -> dict:
     try:
@@ -42,6 +48,20 @@ def add_cart_products(login: str, product: dict | ProductCart,  db: Session = De
         return  append_product
     except:
         raise HTTPException(status_code=401, detail="Не удалось добавить товар в корзину!")
+
+class UpdateCart(BaseModel):
+    update_cart: list
+
+# Удаление товаров с корзины. update_cart - массив корзины уже не включаюший удаляемые товары.
+# Удаление товара с массива должно происходить на клиенте после чего этот массив отправляется на Бэкенд 
+@user.put('/remove_cart/{user_id}/')
+def remove_cart_product(user_id: int, update_cart: list | UpdateCart,  db: Session = Depends(sessions.get_db_USERS)) -> dict:
+    # приведение входных данных cart_list в массив
+    cart_list = list(update_cart.update_cart)
+    return CRUD.remove_cart_product(db=db, user_id=user_id, update_cart=cart_list)
+
+
+# ===============================>>> ОПЕРАЦИИ С ПОЛЬЗОВАТЕЛЕМ <<<=============================================
 
 
 # Создание нового ПОЛЬЗОВАТЕЛЯ

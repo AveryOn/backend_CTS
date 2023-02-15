@@ -85,7 +85,7 @@ def get_user_cart(db: Session, user_id: int) -> user.UserCart:
         raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя")        
 
 
-# Добавление товара в корзину авторизованного ПОЛЬЗОВАТЕЛЯ. Проверка проходит по логину
+# Добавление товара в корзину авторизованного ПОЛЬЗОВАТЕЛЯ
 def add_cart_product(db: Session, login: str, product: dict) -> dict:
     # Получение по username
     try:
@@ -117,6 +117,18 @@ def add_cart_product(db: Session, login: str, product: dict) -> dict:
         except NoResultFound:
             # Поднимает исключение если пользователь с таким логином не найден
             raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")       
+
+
+# Удаление товаров с корзины
+def remove_cart_product(db: Session, user_id: int, update_cart: list) -> dict:
+    user = db.get(User, user_id)
+    if(not str(user.cart[0].data) == str(update_cart)):
+        user.cart[0].data = str(update_cart)
+        db.commit()
+        db.refresh(user)
+        return {"status_response": "Successful!"}
+    else:
+        return {"status_response": "Не удалось удалить товар с корзины!"}
 
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ
