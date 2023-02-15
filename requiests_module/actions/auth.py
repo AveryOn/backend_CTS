@@ -91,7 +91,7 @@ def authenticate_service_person(db: Session, username: str, password: str, UUID:
         raise HTTPException(status_code=404, detail='Пользователь не найден в базе!')
 
 
-# Функция генерации токена доступа
+# Функция генерации токена доступа. Применяется и для Пользователей и для Сотрудников Сервиса  
 def create_access_token(data_token: dict, expires_time: timedelta | None = None) -> str:
     try:
         encode_data_token = data_token.copy()

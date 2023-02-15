@@ -26,6 +26,23 @@ class UserCreate(UserBase):
     password: str
 
 
+# Модель для аннотации аргументов которые приходят с клиента (Для обновления данных ПОЛЬЗОВАТЕЛЯ)
+# Все поля включенные в эту модель могут быть изменены для конкретного пользователя в базе данных
+class UserChangeData(UserBase):
+    username: str | None=None
+    email: str | None=None
+    name: str | None=None
+    lastname: str | None=None
+    image: str | None=None
+    sex: str | None=None
+
+    # orm_mode для корректного взаимодействия с БД
+    class Config:
+        orm_mode = True
+
+class UserChangePassword(UserBase):
+    password: str
+
 # Модель для чтения пользователя из БД / Возврата на клиент
 class User(UserBase):
     id: int

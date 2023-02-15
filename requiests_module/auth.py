@@ -48,7 +48,7 @@ async def get_access_token_user(form_data: UserLogin, db: Session = Depends(sess
         raise HTTPException(status_code=401, detail="Что-то пошло не так. Возможно вы ввели не верные учетные данные") 
 
 
-# Операция пути для получения токена доступа для всех СОТРУДНИКОВ СЕРВИСА
+# Операция пути для получения токена доступа для СОТРУДНИКОВ СЕРВИСА
 @auth.post("/login-service-person")
 async def get_access_token_service_person(form_data: ServicePersonLogin, db: Session = Depends(sessions.get_db_USERS)):
     try:

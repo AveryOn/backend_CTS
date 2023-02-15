@@ -55,11 +55,60 @@ def get_user(db: Session, login: str) -> User:
 
 
 # Получение данных ПОЛЬЗОВАТЕЛЯ по идентификатору (первичноу ключу БД)
-def get_user_by_id(db: Session, id: int) -> User:
+def get_user_by_id(db: Session, id: int) -> user.User:
     try:
         return db.get(User, id)
     except:
         raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
+
+# Обновление пароля ПОЛЬЗОВАТЕЛЯ
+def update_user_password(db: Session, new_data: user.UserChangePassword, user_id: int) -> None:
+    # Обновление password, если пришло в запросе new_data
+    if not new_data.password is None:
+        user = db.get(User, user_id)
+        hashed_password = auth.hash_password(new_data.password)
+        user.hashed_password = hashed_password
+        db.execute(update(User).where(User.id == user_id).values(
+            hashed_password = hashed_password
+        ))
+        db.commit()
+
+# Обновление нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
+def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User) -> user.User:
+    # Обновление username, если пришло в запросе new_data
+    if not new_data.username is None:
+        user.username = new_data.username
+
+    # Обновление email, если пришло в запросе new_data
+    if not new_data.email is None:
+        user.email = new_data.email
+    
+    # Обновление name, если пришло в запросе new_data
+    if not new_data.name is None:
+        user.name = new_data.name
+    
+    # Обновление lastname, если пришло в запросе new_data
+    if not new_data.lastname is None:
+        user.lastname = new_data.lastname
+    
+    # Обновление image, если пришло в запросе new_data
+    if not new_data.image is None:
+        user.image = new_data.image
+    
+    # Обновление sex, если пришло в запросе new_data
+    if not new_data.sex is None:
+        user.sex = new_data.sex
+    
+    db.execute(update(User).where(User.id == user.id).values(
+        username=user.username,
+        email = user.email,
+        name = user.name,
+        lastname = user.lastname,
+        image = user.image,
+        sex = user.sex,
+    ))
+    db.commit()
+    return user
 
 
 # Получение данных СОТРУДНИКА по логину
