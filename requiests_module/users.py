@@ -5,9 +5,6 @@
 # Инструменты FastAPI
 from fastapi import APIRouter, Depends, HTTPException
 
-# Иснтрументы pydantic для модели обновления данных пользователя
-from pydantic import BaseModel
-
 # Импорт Моделей Pydantic
 from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword
 
@@ -19,7 +16,7 @@ from database_module import CRUD
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions
-from requiests_module.actions.auth import authenticate_user, create_access_token, Token, TOKEN_KEEP_ALIVE, get_current_user
+from requiests_module.actions.auth import get_current_user
 
 # Создание экземпляра маршрута, все пути которые относятся к этому маршруту 
 # будут начинаться с /users
@@ -28,7 +25,16 @@ user = APIRouter(
     tags=["user"],
 )
 
-# Создание нового пользователя
+# Получение данных о коризне ПОЛЬЗОВАТЕЛЯ
+@user.get('/{user_id}/cart/')
+def get_cart_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)):
+    try:
+        return CRUD.get_user_cart(db=db, user_id=user_id)
+    except:
+        raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя") 
+
+
+# Создание нового ПОЛЬЗОВАТЕЛЯ
 @user.post('/registration/', response_model=User)
 def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
     try:
@@ -37,7 +43,7 @@ def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
         raise HTTPException(status_code=401, detail="Не удалось зарегистрировать нового пользователя!")
 
 
-# Получение данных зарегестрированного пользователя. 
+# Получение данных зарегестрированного ПОЛЬЗОВАТЕЛЯ. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @user.get('/me/', response_model=User)
 def get_user(user: User = Depends(get_current_user)):
@@ -56,9 +62,19 @@ def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(se
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ
 @user.patch('/user-update-password/{user_id}/')
-def update_user(user_id: int, new_data: UserChangePassword, db: Session = Depends(sessions.get_db_USERS)):
+def update_user_password(user_id: int, new_data: UserChangePassword, db: Session = Depends(sessions.get_db_USERS)) -> dict:
     try:
         CRUD.update_user_password(db=db, new_data=new_data, user_id=user_id)
-        return {"status": 200}
+        return {"response_status": 'Successful!'}
     except:
-        raise HTTPException(status_code=401, detail="Не удалось обновить пароль!")        
+        raise HTTPException(status_code=401, detail="Не удалось обновить пароль!")
+
+
+# Удаление ПОЛЬЗОВАТЕЛЯ
+@user.delete('/user-delete/{user_id}')
+def delete_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> dict:
+    try:
+        CRUD.delete_user(db=db, user_id=user_id)
+        return {"response_status": 'Successful!'}
+    except:
+        raise HTTPException(status_code=400, detail="Не удалось удалить пользователя из базы")

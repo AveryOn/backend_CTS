@@ -37,6 +37,16 @@ def create_user(db: Session, user: user.UserCreate):
     db.refresh(new_cart)
     return new_user
 
+
+# Удаление ПОЛЬЗОВАТЕЛЯ с базы данных USERS
+def delete_user(db: Session, user_id: int) -> None:
+    try:
+        user = db.get(User, user_id)
+        db.delete(user)
+        db.commit()
+    except:
+        raise HTTPException(status_code=400, detail=f"Не удалось выполнить DELETE-запрос, пользователь {user.username} не удален")        
+
 # Получение данных ПОЛЬЗОВАТЕЛЯ по логину
 def get_user(db: Session, login: str) -> User:
     # Получение пользователя по логину. Логином может быть как email, так и username, поэтому первый блок try->except
@@ -60,6 +70,17 @@ def get_user_by_id(db: Session, id: int) -> user.User:
         return db.get(User, id)
     except:
         raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
+
+
+# Получение корзины текущего ПОЛЬЗОВАТЕЛЯ 
+def get_user_cart(db: Session, user_id: int) -> user.UserCart:
+    try:
+        user = db.get(User, user_id)
+        cart_data: dict = user.cart[0]
+        return cart_data
+    except:
+        raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя")        
+
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ
 def update_user_password(db: Session, new_data: user.UserChangePassword, user_id: int) -> None:
