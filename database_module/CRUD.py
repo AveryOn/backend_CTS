@@ -55,7 +55,7 @@ def get_user(db: Session, login: str) -> User:
 
 
 # Получение данных СОТРУДНИКА по логину
-def get_service_person(db: Session, username: str) -> ServicePerson:
+def get_service_person(db: Session, username: str, UUID: str) -> (ServicePerson | None):
     # Получение пользователя по username
     try:
         return db.execute(select(ServicePerson).filter_by(username = username)).scalar_one()

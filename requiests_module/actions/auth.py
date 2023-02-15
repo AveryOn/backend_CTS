@@ -6,7 +6,7 @@
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 
-# Импорт инструментов pydantic 
+# Импорт инструментов pydantic
 from pydantic import BaseModel
 
 # Инструменты SqlAlchemy
@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 # Импорт библиотек для валидации паролей и токенов
 from jose import jwt, JWTError, ExpiredSignatureError
 from passlib.context import CryptContext
-import json
+import ast
 
 # Импорт даты для работы с токенами
 from datetime import datetime, timedelta
@@ -76,14 +76,14 @@ def authenticate_user(db: Session, login: str, password: str) -> user.User:
 # Функция для аутентификации СОТРУДНИКА по логину и паролю
 def authenticate_service_person(db: Session, username: str, password: str, UUID: str, KEY_ACCESS: str) -> user.ServicePerson:
     try:
-        service_person_from_db = CRUD.get_service_person(db=db, username=username)
+        service_person_from_db = CRUD.get_service_person(db=db, username=username, UUID=UUID)
         if not service_person_from_db:
             raise HTTPException(status_code=404, detail="Пользователя с таким логином не существует!")
         if not (verify_password(input_password=password, hashed_password=service_person_from_db.hashed_password)):
             raise HTTPException(status_code=407, detail="Неверный пароль!")
-        if service_person_from_db.UUID != UUID:
+        if not service_person_from_db.UUID == UUID:
             raise HTTPException(status_code=407, detail="Неверный уникальный идентификатор!")
-        if KEY_ACCESS != MANAGER_KEY:
+        if not KEY_ACCESS == MANAGER_KEY:
             raise HTTPException(status_code=407, detail="Неверный ключ доступа!")
         return service_person_from_db
     except:
@@ -126,21 +126,34 @@ def get_current_user(token: str = Depends(oauth2_user), db: Session = Depends(se
 
 
 # ПОЛУЧЕНИЕ СОТРУДНИКА ПО ТОКЕНУ ДОСТУПА
+# Так как в обьекте payload токена в ключе "sub" можно хранить только одну строку как данные
+# А для проверки сотрудников нужно учитывать несколько параметров для авторизации, 
+# то ключ "sub" содержит в себе словарь в строковом формате. Исползуется бибилотека ast с методом
+# ast.literal_eval который переводит структуры данных (в данном случае dict) со строки в их нативный формат
 def get_current_service_person(token: str = Depends(oauth2_service_person), db: Session = Depends(sessions.get_db_USERS)):
     credentials_exception = HTTPException(
         status_code=401,
         detail="Невозможно проверить учетные данные!",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    # try:
-    #     payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    #     token_data: str = payload.get("sub")
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # в token_data лежит словарь вида: {'UUID': str, 'KEY_ACCESS': str, 'username': str}
+        token_data: dict = ast.literal_eval(payload.get("sub"))
+        username: str = token_data.get("username")
+        KEY_ACCESS: str = token_data.get("KEY_ACCESS")
+        UUID: str = token_data.get("UUID")
+        if username is None:
+            raise credentials_exception
+        if KEY_ACCESS != MANAGER_KEY:
+            raise credentials_exception
+        if UUID is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    # Получение сотрудника с БД
+    service_person = CRUD.get_service_person(db=db, username=username, UUID=UUID)
+    if service_person is None:
+        raise credentials_exception
+    return service_person
 
-    #     if username is None:
-    #         raise credentials_exception
-    # except JWTError:
-    #     raise credentials_exception
-    # user = CRUD.get_user(db=db, login=username)
-    # if user is None:
-    #     raise credentials_exception
-    # return user

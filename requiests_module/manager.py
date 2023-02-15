@@ -28,5 +28,5 @@ manager = APIRouter(
 # Получение данных зарегестрированного пользователя. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @manager.get('/me/', response_model=ServicePerson)
-def get_user(user: ServicePerson = Depends(auth.get_current_service_person)):
-    return user
+def get_user(service_person: ServicePerson = Depends(auth.get_current_service_person)):
+    return service_person
