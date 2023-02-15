@@ -6,7 +6,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 # Импорт Моделей Pydantic
-from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword
+from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword, ProductCart
 
 # Импорт инструментов 
 from sqlalchemy.orm import Session
@@ -32,6 +32,16 @@ def get_cart_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)):
         return CRUD.get_user_cart(db=db, user_id=user_id)
     except:
         raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя") 
+
+
+# Добавление товара в корзину ПОЛЬЗОВАТЕЛЯ. Используется токен доступа в заголовке
+@user.patch('/add-product/{login}/')
+def add_cart_products(login: str, product: dict | ProductCart,  db: Session = Depends(sessions.get_db_USERS)) -> dict:
+    try:
+        append_product = CRUD.add_cart_product(db=db, login=login, product=product)
+        return  append_product
+    except:
+        raise HTTPException(status_code=401, detail="Не удалось добавить товар в корзину!")
 
 
 # Создание нового ПОЛЬЗОВАТЕЛЯ

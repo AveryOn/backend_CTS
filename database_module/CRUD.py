@@ -5,6 +5,9 @@
 # Инструментов с FastAPI
 from fastapi import HTTPException 
 
+# Импорт ast модуля для приведения массивов и словарей со строкового в нативный
+import ast
+
 # Импорт ORM-таблиц
 from database_module.models_user import User, UserCart, ServicePerson
 from database_module.models_product import Product, Comment
@@ -80,6 +83,40 @@ def get_user_cart(db: Session, user_id: int) -> user.UserCart:
         return cart_data
     except:
         raise HTTPException(status_code=400, detail="Не удалось получить доступ к корзине пользователя")        
+
+
+# Добавление товара в корзину авторизованного ПОЛЬЗОВАТЕЛЯ. Проверка проходит по логину
+def add_cart_product(db: Session, login: str, product: dict) -> dict:
+    # Получение по username
+    try:
+        user = db.execute(select(User).filter_by(username = login)).scalar_one()
+        # Переводим тип данных корзины с str -> в list
+        cart = ast.literal_eval(user.cart[0].data)
+        # Проверка не допускает повторения товара в корзине
+        if not product in cart:
+            cart.append(product)
+            user.cart[0].data = str(cart)
+            db.commit()
+            return product
+        else:
+            return {"message": "Товар не добавлен. Такой товар уже имеется"}
+    except NoResultFound:
+        # Получение по email
+        try:
+            user = db.execute(select(User).filter_by(email = login)).scalar_one()
+            # Переводим тип данных корзины с str -> в list
+            cart: list = ast.literal_eval(user.cart[0].data)
+            # Проверка не допускает повторения товара в корзине
+            if not product in cart:
+                cart.append(product)
+                user.cart[0].data = str(cart)
+                db.commit()
+                return product
+            else:
+                return {"message": "Товар не добавлен. Такой товар уже имеется"}
+        except NoResultFound:
+            # Поднимает исключение если пользователь с таким логином не найден
+            raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")       
 
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ
