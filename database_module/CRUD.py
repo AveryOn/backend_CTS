@@ -37,7 +37,7 @@ def create_user(db: Session, user: user.UserCreate):
     db.refresh(new_cart)
     return new_user
 
-# Получение данных пользователя по логину
+# Получение данных ПОЛЬЗОВАТЕЛЯ по логину
 def get_user(db: Session, login: str) -> User:
     # Получение пользователя по логину. Логином может быть как email, так и username, поэтому первый блок try->except
     # нужен для поиска пользователя по username, а второй вложенный блок try->except для получения по email
@@ -53,6 +53,15 @@ def get_user(db: Session, login: str) -> User:
             # Поднимает исключение если пользователь с таким логином не найден
             raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
 
+
+# Получение данных СОТРУДНИКА по логину
+def get_service_person(db: Session, username: str) -> ServicePerson:
+    # Получение пользователя по username
+    try:
+        return db.execute(select(ServicePerson).filter_by(username = username)).scalar_one()
+    except NoResultFound:
+        # Поднимает исключение если СОТРУДНИК с таким username не найден
+        raise HTTPException(status_code=404, detail=f"Пользователь с логином '{username}' не найден!")
 
 # Обновление данных пользователя
 def user_update():

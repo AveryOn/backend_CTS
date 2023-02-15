@@ -55,6 +55,12 @@ class ServicePersonBase(BaseModel):
     pass
 
 
+class ServicePersonLogin(ServicePersonBase):
+    UUID: str
+    KEY_ACCESS: str
+    username: str
+    password: str
+
 # Модель для создания нового сотрудника. Создать аккаунт сотрудника может только владелец
 class ServicePersonCreate(ServicePersonBase):
     UUID: str
