@@ -82,7 +82,3 @@ async def get_access_token_service_person(form_data: ServicePersonLogin, db: Ses
         raise HTTPException(status_code=401, detail="Что-то пошло не так. Возможно вы ввели не верные учетные данные") 
 
 
-# Создание нового пользователя
-@auth.post('/registration/', response_model=User)
-def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
-    return CRUD.create_user(db=db, user=user)

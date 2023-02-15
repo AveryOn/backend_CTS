@@ -76,7 +76,7 @@ def authenticate_user(db: Session, login: str, password: str) -> user.User:
 # Функция для аутентификации СОТРУДНИКА по логину и паролю
 def authenticate_service_person(db: Session, username: str, password: str, UUID: str, KEY_ACCESS: str) -> user.ServicePerson:
     try:
-        service_person_from_db = CRUD.get_service_person(db=db, username=username, UUID=UUID)
+        service_person_from_db = CRUD.get_service_person(db=db, username=username)
         if not service_person_from_db:
             raise HTTPException(status_code=404, detail="Пользователя с таким логином не существует!")
         if not (verify_password(input_password=password, hashed_password=service_person_from_db.hashed_password)):
@@ -152,7 +152,9 @@ def get_current_service_person(token: str = Depends(oauth2_service_person), db: 
     except JWTError:
         raise credentials_exception
     # Получение сотрудника с БД
-    service_person = CRUD.get_service_person(db=db, username=username, UUID=UUID)
+    service_person = CRUD.get_service_person(db=db, username=username)
+    if not service_person.UUID == UUID:
+        raise credentials_exception
     if service_person is None:
         raise credentials_exception
     return service_person

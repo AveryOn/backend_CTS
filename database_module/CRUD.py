@@ -54,8 +54,16 @@ def get_user(db: Session, login: str) -> User:
             raise HTTPException(status_code=404, detail=f"Пользователь с логином '{login}' не найден!")
 
 
+# Получение данных ПОЛЬЗОВАТЕЛЯ по идентификатору (первичноу ключу БД)
+def get_user_by_id(db: Session, id: int) -> User:
+    try:
+        return db.get(User, id)
+    except:
+        raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
+
+
 # Получение данных СОТРУДНИКА по логину
-def get_service_person(db: Session, username: str, UUID: str) -> (ServicePerson | None):
+def get_service_person(db: Session, username: str) -> user.ServicePerson:
     # Получение пользователя по username
     try:
         return db.execute(select(ServicePerson).filter_by(username = username)).scalar_one()
