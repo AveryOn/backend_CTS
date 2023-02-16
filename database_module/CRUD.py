@@ -204,25 +204,40 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User)
 # ===============================>>> БЛОК ОПЕРАЦИЙ ГРУППЫ ТОВАРА <<<=============================================
 
 
-# Полуение группы товара
+# Полуение ГРУППЫ товара
 def get_group_product(db: Session, group_name: str):
     try:
-        group = db.execute(select(ProductGroup).filter_by(name=group_name)).scalar_one()
-        return group
+        return db.execute(select(ProductGroup).filter_by(name=group_name)).scalar_one()
     except:
-        raise HTTPException(status_code=500, detail="Не удалось получить группу товара с сервера!")
+        raise HTTPException(status_code=404, detail="Не удалось получить группу товара с сервера!")
+
+
+# Полуение СПИСКА ГРУПП товара
+def get_all_group_product(db: Session) -> list[product.ProductGroup]:
+    try:
+        return db.scalars(select(ProductGroup)).all()
+    except:
+        raise HTTPException(status_code=404, detail="Не удалось получить список групп товара")
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ КАТЕГОРИИ ТОВАРА <<<=============================================
 
 
-# Полуение категории товара
+# Полуение КАТЕГОРИИ товара
 def get_catrgory_product(db: Session, category_name: str):
     try:
         category = db.execute(select(ProductCategory).filter_by(name=category_name)).scalar_one()
         return category
     except:
-        raise HTTPException(status_code=500, detail="Не удалось получить категорию товара с сервера!")
+        raise HTTPException(status_code=404, detail="Не удалось получить категорию товара с сервера!")
+
+
+# Полуение СПИСКА КАТЕГОРИЙ товара
+def get_all_category_product(db: Session) -> list[product.ProductCategory]:
+    try:
+        return db.scalars(select(ProductCategory)).all()
+    except:
+        raise HTTPException(status_code=404, detail="Не удалось получить список категорий товара с сервера!")
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ ТОВАРА <<<=============================================
@@ -293,7 +308,7 @@ def get_products(db: Session) -> list[product.Product]:
 # Создание новой ГРУППЫ товара
 def create_group_product(db: Session, data_group: product.ProductGroupCreate):
     try:
-        if(data_group.MODEATOR_KEY == MODERATOR_KEY):
+        if(data_group.MODEATOR_KEY == MODERATOR_KEY or data_group.MODEATOR_KEY == OWNER_KEY):
             new_group = ProductGroup(name = data_group.name, description=data_group.description, image=data_group.image)
             db.add(new_group)
             db.commit()
@@ -308,7 +323,7 @@ def create_group_product(db: Session, data_group: product.ProductGroupCreate):
 # Создание новой КАТЕГОРИИ товара
 def create_category_product(db: Session, data_category: product.ProductCategoryCreate):
     try:
-        if(data_category.MODEATOR_KEY == MODERATOR_KEY):
+        if(data_category.MODEATOR_KEY == MODERATOR_KEY or data_category.MODEATOR_KEY == OWNER_KEY):
             new_category = ProductCategory(name = data_category.name, description=data_category.description, image=data_category.image)
             db.add(new_category)
             db.commit()

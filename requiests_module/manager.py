@@ -13,7 +13,7 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.user import ServicePerson
-from schemas_module.product import ProductCreate, Product, ProductGroupCreate
+from schemas_module.product import ProductCreate, ProductGroupCreate, ProductGroup, ProductCategoryCreate, ProductCategory
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
@@ -26,6 +26,8 @@ manager = APIRouter(
     tags=["manager"],
 )
 
+# ===============================>>> БЛОК ОПЕРЦИЙ ДЛЯ СОТРУДНИКА (МЕНЕДЖЕРА/МОДЕРАТОРА) <<<============================================
+
 # Получение данных зарегестрированного СОТРУДНИКА сервиса. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @manager.get('/me/', response_model=ServicePerson)
@@ -33,13 +35,16 @@ def get_user(service_person: ServicePerson = Depends(auth.get_current_service_pe
     return service_person
 
 
+# ===============================>>> БЛОК ОПЕРАЦИЙ С ТОВАРАМИ <<<============================================
+
+
 # Создание нового товара
 @manager.post('/{manager_UUID}/create-product/')
 def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
-    try:
         return CRUD.create_product(db=db, creator_UUID=manager_UUID, product_data=product_data)
-    except:
-        raise HTTPException(status_code=500, detail="manager.py -> Не удалось создать новый товар!")
+
+
+# ===============================>>> БЛОК ОПЕРАЦИЙ С ГРУППАМИ ТОВАРОВ <<<============================================
 
 
 # Создние новой ГРУППЫ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
@@ -52,11 +57,38 @@ def create_group(data_group: ProductGroupCreate, db: Session = Depends(sessions.
         raise HTTPException(status_code=500, detail="Не удалось создать группу товара")
 
 
+# Получение ГРУППЫ товара
+@manager.get('/get-group-product/{group_name}/')
+def get_group(group_name: str, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.get_group_product(db=db, group_name=group_name)
+
+
+# Получение СПИСКА ГРУПП товара
+@manager.get('/get-all-group-product/', response_model=list[ProductGroup])
+def get_all_group(db: Session = Depends(sessions.get_db_PRODUCTS)) -> list[ProductGroup]:
+    return CRUD.get_all_group_product(db=db)
+
+
+# ===============================>>> БЛОК ОПЕРАЦИЙ С КАТЕГОРИЯМИ ТОВАРОВ <<<============================================
+
+
 # Создние новой КАТЕГОРИИ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
 # Например: name: 'зима', а не: name: 'Зима'
 @manager.post('/create-category-product/')
-def create_category(data_category: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+def create_category(data_category: ProductCategoryCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
     try:
         return CRUD.create_category_product(db=db, data_category=data_category)
     except:
         raise HTTPException(status_code=500, detail="Не удалось создать категорию товара")
+
+
+# Получение КАТЕГОРИИ товара
+@manager.get('/get-category-product/{category_name}/', response_model=ProductCategory)
+def get_category(category_name: str, db: Session = Depends(sessions.get_db_PRODUCTS)) -> ProductCategory:
+    return CRUD.get_catrgory_product(db=db, category_name=category_name)
+
+
+# Получение СПИСКА ГРУПП товара
+@manager.get('/get-all-category-product/', response_model=list[ProductCategory])
+def get_all_category(db: Session = Depends(sessions.get_db_PRODUCTS)) -> list[ProductCategory]:
+    return CRUD.get_all_category_product(db=db)

@@ -96,6 +96,10 @@ class ProductGroup(ProductGroupBase):
     name: str
     description: str | None = None
     image: str
+    # orm_mode для корректного взаимодействия с БД
+    class Config:
+        orm_mode = True
+
 
 
 # =====================================>>> МОДЕЛЬ ProductCategory <<<=====================================================
@@ -122,3 +126,7 @@ class ProductCategory(ProductCategoryBase):
     name: str
     description: str | None = None
     image: str
+    # orm_mode для корректного взаимодействия с БД
+    class Config:
+        orm_mode = True
+
