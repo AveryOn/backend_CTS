@@ -55,4 +55,10 @@ def create_product(owner_UUID: str, product_data: dict | ProductCreate, db: Sess
     try:
         return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
     except:
-        raise HTTPException(status_code=408, detail="owner.py -> Не удалось создать новый товар!")
+        raise HTTPException(status_code=500, detail="owner.py -> Не удалось создать новый товар!")
+
+
+# Получение группы товара
+@owner.get('/get-group-product/{group_name}/')
+def get_group(group_name: str, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.get_group_product(db=db, group_name=group_name)

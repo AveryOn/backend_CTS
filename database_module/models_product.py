@@ -7,6 +7,26 @@ from sqlalchemy.orm import relationship
 from database_module.engine import BaseProducts
 
 
+# ТАБЛИЦА ГРУПП ТОВАРА (напрмиер: группа "зима")
+class ProductGroup(BaseProducts):
+    __tablename__ = "groups"
+
+    id = Column(Integer, primary_key=True, index=True, unique=True)      # первичный ключ
+    name = Column(String, index = True, unique=True)         # Наименование группы товара
+    image = Column(String)       # превью-картинка группы товара
+    description = Column(String)        # описание группы товара
+
+    products = relationship("Product", back_populates="group")     # двусторонняя связь с товарами этой группы товаром
+
+    def __repr__(self):
+        return f"""ProductGroup(
+        id={self.id!r}, 
+        name={self.name!r}, 
+        image={self.image!r}, 
+        description={self.description!r},
+        )"""
+
+
 # ТАБЛИЦА С ТОВАРОМ
 class Product(BaseProducts):
     __tablename__ = "products"
@@ -15,7 +35,7 @@ class Product(BaseProducts):
     article = Column(Integer, unique=True, index=True)      #
     name = Column(String)       # наименование
     price = Column(Integer)     # цена
-    group = Column(String)      # группа товара
+    group_name = Column(String, ForeignKey("groups.name"))
     category = Column(String)       # категория товара
     tags = Column(String)       # теги
     creation_time = Column(Integer)     # Время создания товара
@@ -32,6 +52,7 @@ class Product(BaseProducts):
     remains = Column(Integer)       # остаток товара
 
     comments = relationship("Comment", back_populates="parent_product")     # массив с комменатриями для каждого товара
+    group = relationship("ProductGroup", back_populates="products")
 
     def __repr__(self):
         return f"""Product(
@@ -55,6 +76,7 @@ class Product(BaseProducts):
         rating={self.rating!r},
         remains={self.remains!r},
         )"""
+
 
 
 # ТАБЛИЦА С КОММЕНТАРИЯМИ ДЛЯ КАЖДОГО ТОВАРА
@@ -83,3 +105,5 @@ class Comment(BaseProducts):
         rating={self.rating!r},
         parent_product_id={self.parent_product_id!r},
         )"""
+
+

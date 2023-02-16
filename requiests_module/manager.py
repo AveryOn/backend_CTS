@@ -13,7 +13,7 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.user import ServicePerson
-from schemas_module.product import ProductCreate, Product
+from schemas_module.product import ProductCreate, Product, ProductGroupCreate
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
@@ -39,7 +39,24 @@ def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Se
     try:
         return CRUD.create_product(db=db, creator_UUID=manager_UUID, product_data=product_data)
     except:
-        raise HTTPException(status_code=408, detail="manager.py -> Не удалось создать новый товар!")
-    
+        raise HTTPException(status_code=500, detail="manager.py -> Не удалось создать новый товар!")
 
 
+# Создние новой ГРУППЫ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
+# Например: name: 'зима', а не: name: 'Зима'
+@manager.post('/create-group-product/')
+def create_group(data_group: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    try:
+        return CRUD.create_group_products(db=db, data_group=data_group)
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось создать группу товара")
+
+
+# # Создние новой КАТЕГОРИИ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
+# # Например: name: 'зима', а не: name: 'Зима'
+# @manager.post('/create-group-product/')
+# def create_group(data_group: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+#     try:
+#         return CRUD.create_group_products(db=db, data_group=data_group)
+#     except:
+#         raise HTTPException(status_code=500, detail="Не удалось создать группу товара")
