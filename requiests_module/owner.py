@@ -13,6 +13,7 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.user import ServicePerson, ServicePersonCreate
+from schemas_module.product import ProductCreate
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
@@ -46,3 +47,12 @@ def create_service_person(service_person: ServicePersonCreate, db: Session = Dep
         return new_person
     else:
         raise HTTPException(status_code=408, detail='Ключ Владельца не верный!')    
+
+
+# Создание нового товара
+@owner.post('/{owner_UUID}/create-product/')
+def create_product(owner_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    try:
+        return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
+    except:
+        raise HTTPException(status_code=408, detail="owner.py -> Не удалось создать новый товар!")

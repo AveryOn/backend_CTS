@@ -18,6 +18,9 @@ class Product(BaseProducts):
     group = Column(String)      # группа товара
     category = Column(String)       # категория товара
     tags = Column(String)       # теги
+    creation_time = Column(Integer)     # Время создания товара
+    creation_manager_UUID = Column(String)      # Уникальный Идентификатор сотрудника, который создал данный товар
+    edit_time = Column(Integer)         # Время изменения (редактирования) товара
     discount = Column(Integer)      # скидка в процентах
     specifications = Column(String)     # характеристики
     description = Column(String)        # полное описание

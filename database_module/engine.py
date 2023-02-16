@@ -37,7 +37,7 @@ engine_products = create_engine(
 )
 
 # Для запуска сесии с БД PRODUCTS 
-session_products = sessionmaker(autoflush=False, autocommit=False, bind=engine_users)
+session_products = sessionmaker(autoflush=False, autocommit=False, bind=engine_products)
 # Для декларативного сопоставления ORM-таблиц с Python. В модуле models_product таблицы строятся на основе этой переменной
 BaseProducts = declarative_base()
 
@@ -54,6 +54,6 @@ engine_messanger = create_engine(
 )
 
 # Для запуска сесии с БД MESSANGER 
-session_messanger = sessionmaker(autoflush=False, autocommit=False, bind=engine_users)
+session_messanger = sessionmaker(autoflush=False, autocommit=False, bind=engine_messanger)
 # Для декларативного сопоставления ORM-таблиц с Python. В модуле models_messanger таблицы строятся на основе этой переменной
 BaseMessanger = declarative_base()

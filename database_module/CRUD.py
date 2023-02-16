@@ -196,10 +196,45 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User)
     return user
 
 
-# ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ <<<=============================================
+# ===============================>>> БЛОК ОПЕРАЦИЙ ТОВАРА <<<=============================================
 
 
-# Получение данных СОТРУДНИКА по логину
+# СОЗДАНИЕ нового товара
+def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate) -> product.Product:
+    try:
+        product = Product(
+            article = product_data.get("article"),
+            name = product_data.get("name"),
+            price = product_data.get("price"),
+            group = str(product_data.get("group")),
+            category = str(product_data.get("category")),
+            tags = str(product_data.get("tags")),
+            creation_time = product_data.get("creation_time"),
+            creation_manager_UUID = creator_UUID,
+            discount = product_data.get("discount"),
+            specifications = str(product_data.get("specifications")),
+            description = product_data.get("description"),
+            images = str(product_data.get("images")),
+            promotion = str(product_data.get("promotion")),
+            remains = product_data.get("remains"),
+        )
+        db.add(product)
+        db.commit()
+        db.refresh(product)
+        return product
+    except:
+        raise HTTPException(status_code=408, detail="Не удалось создать новый товар")
+
+
+# ПОЛУЧЕНИЕ товара с БД PRODUCTS
+def get_products(db: Session):
+    products = db.execute(select(Product)).all()
+    return products
+
+# ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
+
+
+# Получение данных СОТРУДНИКА по username
 def get_service_person(db: Session, username: str) -> user.ServicePerson:
     # Получение пользователя по username
     try:
