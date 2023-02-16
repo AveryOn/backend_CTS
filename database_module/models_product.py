@@ -110,7 +110,7 @@ class Comment(BaseProducts):
     owner_lastname = Column(String)       # фамилия пользователя-создателя
     data_text = Column(String)      # текст комментария (его тело)
     images = Column(String, default=None)       # картинки в комментарии
-    rating = Column(Integer)        # оценка товара
+    rating = Column(Integer)        # оценка товару
     parent_product_id = Column(Integer, ForeignKey("products.id"))      # идентификатор товара к которому принадлежит этот комментарий
 
     parent_product = relationship("Product", back_populates="comments")     # двусторонняя связь с родительским товаром

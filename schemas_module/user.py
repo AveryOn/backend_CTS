@@ -114,7 +114,7 @@ class ServicePersonCreate(ServicePersonBase):
     username: str
     password: str
     # allows: dict
-    SECRET_KEY: str
+    OWNER_KEY: str
     sex: str
 
 

@@ -13,7 +13,14 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.user import ServicePerson, ServicePersonCreate
-from schemas_module.product import ProductCreate, ProductGroupCreate, ProductGroup, ProductCategoryCreate, ProductCategory
+from schemas_module.product import (
+    ProductCreate, 
+    ProductGroupCreate, 
+    ProductGroup, 
+    ProductCategoryCreate, 
+    ProductCategory,
+    ProductChange,
+)
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
@@ -26,7 +33,7 @@ owner = APIRouter(
     tags=["owner"],
 )
 
-SECRET_KEY = '$2b$12$KPH.9tF5ycOszX5TI7CzkuausE30Os2M4NQ3lOcYGAnKXDDUef9LS'
+OWNER_KEY = '$2b$12$KPH.9tF5ycOszX5TI7CzkuausE30Os2M4NQ3lOcYGAnKXDDUef9LS'
 
 # Для создания владельца
 # SECRET_KEY: 'ce2b1cab3a9a1cc34ea66b50e2a766c68f054d81920807da4615c7bd665094e8'
@@ -40,9 +47,9 @@ SECRET_KEY = '$2b$12$KPH.9tF5ycOszX5TI7CzkuausE30Os2M4NQ3lOcYGAnKXDDUef9LS'
 
 # Создание нового сотрудника
 @owner.post('/create-new-person/', response_model=ServicePerson)
-def create_service_person(service_person: ServicePersonCreate, db: Session = Depends(sessions.get_db_USERS)):
+def create_service_person(service_person: ServicePersonCreate, db: Session = Depends(sessions.get_db_USERS)) -> ServicePerson:
     # Проверка делает сравнение хэша ключа владельца и того ключа который пришел с клиента и если они равны то блок выполняется
-    if (auth.verify_password(input_password = service_person.SECRET_KEY, hashed_password = SECRET_KEY)):
+    if (auth.verify_password(input_password = service_person.OWNER_KEY, hashed_password = OWNER_KEY)):
         new_person = CRUD.create_service_person(db=db, service_person=service_person)
         return new_person
     else:
@@ -52,11 +59,19 @@ def create_service_person(service_person: ServicePersonCreate, db: Session = Dep
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ТОВАРАМИ <<<============================================
 
 
-# Создание нового товара
+# СОЗДАНИЕ нового товара
 @owner.post('/{owner_UUID}/create-product/')
 def create_product(owner_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
     return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
 
+
+# ИЗМЕНЕНИЕ (редактирование) товара
+@owner.put('/edit-product/{article}/')
+def create_product(article: int, edit_data: ProductChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.edit_product(db=db, article=article, edit_data=edit_data)
+
+
+# УДАЛЕНИЕ товара
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ГРУППАМИ ТОВАРОВ <<<============================================
 

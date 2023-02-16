@@ -13,8 +13,14 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.user import ServicePerson
-from schemas_module.product import ProductCreate, ProductGroupCreate, ProductGroup, ProductCategoryCreate, ProductCategory
-
+from schemas_module.product import (
+    ProductCreate, 
+    ProductGroupCreate, 
+    ProductGroup,
+    ProductCategoryCreate, 
+    ProductCategory, 
+    ProductChange
+)
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
 
@@ -42,6 +48,12 @@ def get_user(service_person: ServicePerson = Depends(auth.get_current_service_pe
 @manager.post('/{manager_UUID}/create-product/')
 def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
         return CRUD.create_product(db=db, creator_UUID=manager_UUID, product_data=product_data)
+
+
+# ИЗМЕНЕНИЕ (редактирование) товара
+@manager.put('/edit-product/{article}/')
+def create_product(article: int, edit_data: ProductChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.edit_product(db=db, article=article, edit_data=edit_data)
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ГРУППАМИ ТОВАРОВ <<<============================================

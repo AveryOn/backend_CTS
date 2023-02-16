@@ -39,6 +39,23 @@ class ProductCreate(ProductBase):
     class Config:
         orm_mode = True
 
+
+# Модель для ИЗМЕНЕНИЯ товара. MODERATOR_KEY - также должен быть предъявлен в качестве дополнительной верификации
+# Обьекты и Массивы на клиенте должны быть преобразованы либо в строку либо в JSON-формат. Потому что 
+# БД такие объекты хранит в строковом формате
+class ProductChange(ProductBase):
+    name: str | None = None
+    price: float | None = None
+    edit_time: int | None = None
+    discount: float | None = None
+    description: str | None = None
+    images: str | None = None
+    promotion: str | None = None
+    remains: int | None = None
+    MODERATOR_KEY: str
+
+
+
 # Модель используется для возврата на клиент. 
 # Регламентирует какие поля должны быть у товара, который приходит на клиент
 # Поля 
@@ -63,7 +80,7 @@ class Product(ProductBase):
     images: str
     promotion: str | None = None
     sold: int | None = None
-    rating: int | None = None
+    rating: float | None = None
     remains: int
     # orm_mode для корректного взаимодействия с БД
     class Config:

@@ -164,38 +164,11 @@ def update_user_password(db: Session, new_data: user.UserChangePassword, user_id
 
 
 # Обновление нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
-def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User) -> user.User:
-    # Обновление username, если пришло в запросе new_data
-    if not new_data.username is None:
-        user.username = new_data.username
-
-    # Обновление email, если пришло в запросе new_data
-    if not new_data.email is None:
-        user.email = new_data.email
-    
-    # Обновление name, если пришло в запросе new_data
-    if not new_data.name is None:
-        user.name = new_data.name
-    
-    # Обновление lastname, если пришло в запросе new_data
-    if not new_data.lastname is None:
-        user.lastname = new_data.lastname
-    
-    # Обновление image, если пришло в запросе new_data
-    if not new_data.image is None:
-        user.image = new_data.image
-    
-    # Обновление sex, если пришло в запросе new_data
-    if not new_data.sex is None:
-        user.sex = new_data.sex
-    
-    db.execute(update(User).where(User.id == user.id).values(
-        username=user.username,
-        email = user.email,
-        name = user.name,
-        lastname = user.lastname,
-        image = user.image,
-        sex = user.sex,
+def update_user_all(db: Session, new_data: user.UserChangeData, user_id: int) -> user.User:
+    # Создается копия данных с изменениями. Она не включает в себя поля с неопределенными значениями
+    new_data_copy = new_data.dict(exclude_none=True, exclude_unset=True)
+    db.execute(update(User).where(User.id == user_id).values(
+        **new_data_copy
     ))
     db.commit()
     return user
@@ -243,7 +216,7 @@ def get_all_category_product(db: Session) -> list[product.ProductCategory]:
 # ===============================>>> БЛОК ОПЕРАЦИЙ ТОВАРА <<<=============================================
 
 
-# СОЗДАНИЕ нового товара
+# СОЗДАНИЕ нового товара в БД PRODUCTS
 def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate):
     # Дополнительная верификация на ключ доступа сотрудника
     if product_data.get("MODERATOR_KEY") == MODERATOR_KEY or product_data.get("MODERATOR_KEY") == OWNER_KEY:
@@ -293,12 +266,39 @@ def create_product(db: Session, creator_UUID: str, product_data: dict | product.
         raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
 
-# ПОЛУЧЕНИЕ товара с БД PRODUCTS
+# ПОЛУЧЕНИЕ СПИСКА товара с БД PRODUCTS
 def get_products(db: Session) -> list[product.Product]:
     products = db.scalars(select(Product)).all()
     return products
 
 
+# ПОЛУЧЕНИЕ конкретного товара с БД PRODUCTS
+def get_one_product(db: Session, article: int):
+    product = db.execute(select(Product).filter_by(article=article)).scalar_one()
+    return product
+
+
+# ИЗМЕНЕНИЕ (редактирование) товара
+def edit_product(db: Session, article: int, edit_data: product.ProductChange):
+    edit_data_copy = edit_data.dict(exclude_none=True, exclude_unset=True, exclude={'MODERATOR_KEY'})
+    if edit_data.MODERATOR_KEY == MODERATOR_KEY or edit_data.MODERATOR_KEY == OWNER_KEY:
+        try:
+            db.execute(update(Product).where(Product.article == article).values(
+                **edit_data_copy
+            ))
+            db.commit()
+            return {"response_status": "Successful!"}
+        except:
+            raise HTTPException(status_code=500, detail="Не удалось зафиксировать изменения товара в Базе Данных")
+    else:
+        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
+
+
+# ИЗМЕНЕНИЕ рейтинга товара
+def change_rating_product(db: Session, article: int, rating: float):
+    product = get_one_product(db=db, article=article)
+    product.rating = float(rating)
+    return product
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
 
