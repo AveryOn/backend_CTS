@@ -23,6 +23,7 @@ class Product(BaseProducts):
     edit_time = Column(Integer)         # Время изменения (редактирования) товара
     discount = Column(Integer)      # скидка в процентах
     specifications = Column(String)     # характеристики
+    country_origin = Column(String)         # страна производитель
     description = Column(String)        # полное описание
     images = Column(String)     # ссылки на картинки в firebase(или сами картинки)
     promotion = Column(String, default=None)      # обьект описания акции если она есть
@@ -41,6 +42,10 @@ class Product(BaseProducts):
         group={self.group!r},
         category={self.category!r},
         tags={self.tags!r},
+        creation_time={self.creation_time!r},
+        creation_manager_UUID={self.creation_manager_UUID!r},
+        edit_time={self.edit_time!r},
+        country_origin={self.country_origin!r},
         discount={self.discount!r},
         specifications={self.specifications!r},
         description={self.description!r},

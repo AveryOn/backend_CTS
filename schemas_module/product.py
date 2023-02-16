@@ -24,6 +24,7 @@ class ProductCreate(ProductBase):
     creation_manager_UUID: str
     discount: int | None = None
     specifications: dict
+    country_origin: str
     description: str
     images: list
     promotion: dict | None = None
@@ -39,19 +40,20 @@ class Product(ProductBase):
     article: int
     name: str
     price: int
-    group: dict
-    category: dict
-    tags: list
+    group: str
+    category: str
+    tags: str
     creation_time: int
     creation_manager_UUID: str
     edit_time: int | None = None
     discount: int | None = None
-    specifications: dict
+    specifications: str
+    country_origin: str
     description: str
-    images: list
-    promotion: dict | None = None
-    sold: int = 0
-    rating: int = 0
+    images: str
+    promotion: str | None = None
+    sold: int | None = None
+    rating: int | None = None
     remains: int
     # orm_mode для корректного взаимодействия с БД
     class Config:

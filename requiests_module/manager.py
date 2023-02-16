@@ -41,3 +41,5 @@ def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Se
     except:
         raise HTTPException(status_code=408, detail="manager.py -> Не удалось создать новый товар!")
     
+
+

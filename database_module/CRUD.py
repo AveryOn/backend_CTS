@@ -201,6 +201,13 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user: user.User)
 
 # СОЗДАНИЕ нового товара
 def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate) -> product.Product:
+    # Дополнительная проверка типов для некоторых полей. 
+    # Если поле в значении None то переводить в строку его не нужно, а если обьект или массив то нужно
+    promotion = None
+    if not product_data.get("promotion") is None:
+        promotion = str(product_data.get("promotion"))
+    else:
+        promotion = None
     try:
         product = Product(
             article = product_data.get("article"),
@@ -213,9 +220,10 @@ def create_product(db: Session, creator_UUID: str, product_data: dict | product.
             creation_manager_UUID = creator_UUID,
             discount = product_data.get("discount"),
             specifications = str(product_data.get("specifications")),
+            country_origin = product_data.get("country_origin"),
             description = product_data.get("description"),
             images = str(product_data.get("images")),
-            promotion = str(product_data.get("promotion")),
+            promotion = promotion,
             remains = product_data.get("remains"),
         )
         db.add(product)
@@ -227,9 +235,11 @@ def create_product(db: Session, creator_UUID: str, product_data: dict | product.
 
 
 # ПОЛУЧЕНИЕ товара с БД PRODUCTS
-def get_products(db: Session):
-    products = db.execute(select(Product)).all()
+def get_products(db: Session) -> list[product.Product]:
+    products = db.scalars(select(Product)).all()
     return products
+
+
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
 
