@@ -3,7 +3,7 @@
 ##########################################################################################
 
 # Инструменты FastAPI
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 
 # Инструменты SqlAlchemy
 from sqlalchemy.orm import Session
@@ -33,7 +33,8 @@ owner = APIRouter(
     tags=["owner"],
 )
 
-OWNER_KEY = '$2b$12$KPH.9tF5ycOszX5TI7CzkuausE30Os2M4NQ3lOcYGAnKXDDUef9LS'
+# Хэш ключа владельца (ЗАМЕНИТЬ ЕГО НА ХЭШ (ДЛЯ СОЗДАНИЯ НОВОГО СОТРУДНИКА))
+OWNER_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 
 # Для создания владельца
 # SECRET_KEY: 'ce2b1cab3a9a1cc34ea66b50e2a766c68f054d81920807da4615c7bd665094e8'
@@ -72,6 +73,14 @@ def create_product(article: int, edit_data: ProductChange, db: Session = Depends
 
 
 # УДАЛЕНИЕ товара
+@owner.put('/delete-product/{article}/')
+# MODERATOR_KEY - приходит с клиента, как тело запроса, поэтому он типа dict 
+def delete_product(article: int, MODERATOR_KEY: dict = Body(default=...), db: Session = Depends(sessions.get_db_PRODUCTS)):
+    if MODERATOR_KEY.get("MODERATOR_KEY") == OWNER_KEY:
+        return CRUD.delete_product(db=db, article=article, moderator_key=MODERATOR_KEY)
+    else:
+        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
+
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ГРУППАМИ ТОВАРОВ <<<============================================
 

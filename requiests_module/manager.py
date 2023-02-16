@@ -3,7 +3,7 @@
 ##########################################################################################
 
 # Инструменты FastAPI
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Body
 
 # Инструменты SqlAlchemy
 from sqlalchemy.orm import Session
@@ -24,6 +24,8 @@ from schemas_module.product import (
 # Импорт Модуля Actions
 from requiests_module.actions import sessions, auth
 
+# Ключ доступа для сотрудников
+MANAGER_KEY: str = '9dd4f7a7efd9facf9cfbd59b2411c661'
 
 # Создание экземпляра маршрута, все пути которые относятся к этому маршруту 
 # будут начинаться с /manager
@@ -54,6 +56,16 @@ def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Se
 @manager.put('/edit-product/{article}/')
 def create_product(article: int, edit_data: ProductChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
     return CRUD.edit_product(db=db, article=article, edit_data=edit_data)
+
+
+# УДАЛЕНИЕ товара
+@manager.put('/delete-product/{article}/')
+# MODERATOR_KEY - приходит с клиента, как тело запроса, поэтому он типа dict 
+def delete_product(article: int, MODERATOR_KEY: dict = Body(default=...), db: Session = Depends(sessions.get_db_PRODUCTS)):
+    if MODERATOR_KEY.get("MODERATOR_KEY") == MANAGER_KEY:
+        return CRUD.delete_product(db=db, article=article, moderator_key=MODERATOR_KEY)
+    else:
+        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ГРУППАМИ ТОВАРОВ <<<============================================

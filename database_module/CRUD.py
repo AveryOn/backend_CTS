@@ -272,7 +272,7 @@ def get_products(db: Session) -> list[product.Product]:
     return products
 
 
-# ПОЛУЧЕНИЕ конкретного товара с БД PRODUCTS
+# ПОЛУЧЕНИЕ одного товара с БД PRODUCTS (по артикулу)
 def get_one_product(db: Session, article: int):
     product = db.execute(select(Product).filter_by(article=article)).scalar_one()
     return product
@@ -290,6 +290,20 @@ def edit_product(db: Session, article: int, edit_data: product.ProductChange):
             return {"response_status": "Successful!"}
         except:
             raise HTTPException(status_code=500, detail="Не удалось зафиксировать изменения товара в Базе Данных")
+    else:
+        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
+
+
+# УДАЛЕНИЕ товара 
+def delete_product(db: Session, article: int, moderator_key: dict):
+    if moderator_key.get("MODERATOR_KEY") == MODERATOR_KEY or moderator_key.get("MODERATOR_KEY") == OWNER_KEY:
+        try:
+            product = get_one_product(db=db, article=article)
+            db.delete(product)
+            db.commit()
+            return {"response_status": "Successful!"}
+        except:
+            raise HTTPException(status_code=500, detail="Не удалось удалить товар из Базы Данных!")
     else:
         raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
