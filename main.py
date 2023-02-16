@@ -29,7 +29,11 @@ app.include_router(manager)
 # Ресурсы которым разрешено получать доступ к данному приложению (Серверу) согласно политике CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://localhost:8081"],
+    allow_origins=[
+        "http://localhost:8080", 
+        "http://localhost:8081",
+        "http://192.168.1.148:8080"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

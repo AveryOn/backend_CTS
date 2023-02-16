@@ -5,6 +5,8 @@
 # Инструменты pydantic
 from pydantic import BaseModel
 
+# =====================================>>> МОДЕЛЬ Product <<<=====================================================
+
 # Модель нигде не используется играет роль фундамента для обьекта Product
 # (Product - условный обьект который обозначает один элемент Базы Данных PRODUCTS в таблице Product)
 class ProductBase(BaseModel):
@@ -14,14 +16,14 @@ class ProductBase(BaseModel):
 # Модель используется при создании нового товара МЕНЕДЖЕРОМ или ВЛАДЕЛЬЦЕМ сервиса
 # Данная модель является телом запроса с клиентом и регламентирует какие поля должны быть
 # !!! Обрати внимение, что поля category и group - являются строками. Но это так потому что 
-# когда создается новый товар то в его теле передается не обькт catrgory и group а их название
+# когда создается новый товар то в его теле передается их название
 # для проверки на то существует ли такая группа или категория в базе данных. Если нет то на клиент возвращается 404
 class ProductCreate(ProductBase):
     article: int
     name: str
     price: int
     group_name: str
-    category: str
+    category_name: str
     tags: list
     creation_time: int
     creation_manager_UUID: str
@@ -32,6 +34,7 @@ class ProductCreate(ProductBase):
     images: list
     promotion: dict | None = None
     remains: int
+    MODERATOR_KEY: str
     # orm_mode для корректного взаимодействия с БД
     class Config:
         orm_mode = True
@@ -48,7 +51,7 @@ class Product(ProductBase):
     name: str
     price: int
     group_name: str
-    category: str
+    category_name: str
     tags: str
     creation_time: int
     creation_manager_UUID: str
@@ -67,13 +70,17 @@ class Product(ProductBase):
         orm_mode = True
 
 
+# =====================================>>> МОДЕЛЬ ProductGroup <<<=====================================================
+
+
+
 # Модель нигде не используется играет роль фундамента для обьекта ProductGroup
 # (ProductGroup - условный обьект который обозначает один элемент Базы Данных PRODUCTS в таблице ProductGroup)
 class ProductGroupBase(BaseModel):
     pass
 
 
-# Модель для создания группы товара. Группа товара обьединяет все товары конкретной тематики например зимняя группа товаров
+# Модель для создания ГРУППЫ товара. Группа товара обьединяет все товары конкретной тематики например зимняя ГРУППА товаров
 # или электротовары.
 # MODEATOR_KEY - служит для дополнительной верификации
 class ProductGroupCreate(ProductGroupBase):
@@ -91,3 +98,27 @@ class ProductGroup(ProductGroupBase):
     image: str
 
 
+# =====================================>>> МОДЕЛЬ ProductCategory <<<=====================================================
+
+
+# Модель нигде не используется играет роль фундамента для обьекта v
+# (ProductCategory - условный обьект который обозначает один элемент Базы Данных PRODUCTS в таблице ProductCategory)
+class ProductCategoryBase(BaseModel):
+    pass
+
+
+# Модель для создания КАТЕГОРИИ товара. КАТЕГОРИЯ товара обьединяет все товары конкретной категории например "головные уборы"
+# MODEATOR_KEY - служит для дополнительной верификации
+class ProductCategoryCreate(ProductCategoryBase):
+    name: str
+    description: str | None = None
+    image: str
+    MODEATOR_KEY: str
+
+
+# Модель используется для возврата КАТЕГОРИИ товара на клиент
+class ProductCategory(ProductCategoryBase):
+    id: int
+    name: str
+    description: str | None = None
+    image: str

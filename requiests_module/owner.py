@@ -52,10 +52,7 @@ def create_service_person(service_person: ServicePersonCreate, db: Session = Dep
 # Создание нового товара
 @owner.post('/{owner_UUID}/create-product/')
 def create_product(owner_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
-    try:
-        return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
-    except:
-        raise HTTPException(status_code=500, detail="owner.py -> Не удалось создать новый товар!")
+    return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
 
 
 # Получение группы товара

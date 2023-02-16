@@ -7,19 +7,39 @@ from sqlalchemy.orm import relationship
 from database_module.engine import BaseProducts
 
 
-# ТАБЛИЦА ГРУПП ТОВАРА (напрмиер: группа "зима")
+# ТАБЛИЦА ГРУППА ТОВАРА (напрмиер: группа "зима")
 class ProductGroup(BaseProducts):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True, index=True, unique=True)      # первичный ключ
-    name = Column(String, index = True, unique=True)         # Наименование группы товара
-    image = Column(String)       # превью-картинка группы товара
-    description = Column(String)        # описание группы товара
+    name = Column(String, index = True, unique=True)         # Наименование ГРУППЫ товара
+    image = Column(String)       # превью-картинка ГРУППЫ товара
+    description = Column(String)        # описание ГРУППЫ товара
 
-    products = relationship("Product", back_populates="group")     # двусторонняя связь с товарами этой группы товаром
+    products = relationship("Product", back_populates="group")     # двусторонняя связь с товарами этой ГРУППЫ товаром
 
     def __repr__(self):
         return f"""ProductGroup(
+        id={self.id!r}, 
+        name={self.name!r}, 
+        image={self.image!r}, 
+        description={self.description!r},
+        )"""
+
+
+# ТАБЛИЦА КАТЕГОРИИ ТОВАРА (напрмиер: категория "головные уборы")
+class ProductCategory(BaseProducts):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, index=True, unique=True)      # первичный ключ
+    name = Column(String, index = True, unique=True)         # Наименование КАТЕГОРИИ товара
+    image = Column(String)       # превью-картинка КАТЕГОРИИ товара
+    description = Column(String)        # описание КАТЕГОРИИ товара
+
+    products = relationship("Product", back_populates="category")     # двусторонняя связь с товарами этой КАТЕГОРИИ товаров
+
+    def __repr__(self):
+        return f"""ProductCategory(
         id={self.id!r}, 
         name={self.name!r}, 
         image={self.image!r}, 
@@ -32,11 +52,11 @@ class Product(BaseProducts):
     __tablename__ = "products"
 
     id = Column(Integer, primary_key=True, index=True)      # первичный ключ
-    article = Column(Integer, unique=True, index=True)      #
+    article = Column(Integer, unique=True, index=True)      #   артикул товара. Используется в базе данных как идентификатор
     name = Column(String)       # наименование
     price = Column(Integer)     # цена
-    group_name = Column(String, ForeignKey("groups.name"))
-    category = Column(String)       # категория товара
+    group_name = Column(String, ForeignKey("groups.name"))          # имя группы товра
+    category_name = Column(String, ForeignKey("categories.name"))       # имя категории товара
     tags = Column(String)       # теги
     creation_time = Column(Integer)     # Время создания товара
     creation_manager_UUID = Column(String)      # Уникальный Идентификатор сотрудника, который создал данный товар
@@ -52,7 +72,8 @@ class Product(BaseProducts):
     remains = Column(Integer)       # остаток товара
 
     comments = relationship("Comment", back_populates="parent_product")     # массив с комменатриями для каждого товара
-    group = relationship("ProductGroup", back_populates="products")
+    group = relationship("ProductGroup", back_populates="products")         # группа товара которой принадлежит товар
+    category = relationship("ProductCategory", back_populates="products")        # категория товара которой принадлежит товар
 
     def __repr__(self):
         return f"""Product(

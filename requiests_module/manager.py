@@ -47,16 +47,16 @@ def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Se
 @manager.post('/create-group-product/')
 def create_group(data_group: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
     try:
-        return CRUD.create_group_products(db=db, data_group=data_group)
+        return CRUD.create_group_product(db=db, data_group=data_group)
     except:
         raise HTTPException(status_code=500, detail="Не удалось создать группу товара")
 
 
-# # Создние новой КАТЕГОРИИ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
-# # Например: name: 'зима', а не: name: 'Зима'
-# @manager.post('/create-group-product/')
-# def create_group(data_group: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
-#     try:
-#         return CRUD.create_group_products(db=db, data_group=data_group)
-#     except:
-#         raise HTTPException(status_code=500, detail="Не удалось создать группу товара")
+# Создние новой КАТЕГОРИИ товара.  Значение поля name на клиенте должно передаваться в теле запроса в НИЖНЕМ РЕГИСТРЕ!
+# Например: name: 'зима', а не: name: 'Зима'
+@manager.post('/create-category-product/')
+def create_category(data_category: ProductGroupCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    try:
+        return CRUD.create_category_product(db=db, data_category=data_category)
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось создать категорию товара")

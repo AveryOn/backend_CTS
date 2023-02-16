@@ -10,7 +10,7 @@ import ast
 
 # Импорт ORM-таблиц
 from database_module.models_user import User, UserCart, ServicePerson
-from database_module.models_product import Product, Comment, ProductGroup
+from database_module.models_product import Product, Comment, ProductGroup, ProductCategory
 from database_module.models_messanger import UserChat, Message
 
 # Импорт Модулей с Pydantic-моделями
@@ -24,6 +24,11 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, update
 from sqlalchemy.exc import NoResultFound
 
+
+# Ключ доступа для модераторов. Применяется для подтверждения действия в качестве дополнительной верификации
+MODERATOR_KEY: str = '9dd4f7a7efd9facf9cfbd59b2411c661'
+# Ключ доступа для Владельца. Применяется для подтверждения действия в качестве дополнительной верификации
+OWNER_KEY: str = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 
 #===========>>>   ВЗАИМОДЕЙСТВИЕ С БАЗОЙ ДАННЫХ  -  USERS.db   <<<==================
 
@@ -208,52 +213,69 @@ def get_group_product(db: Session, group_name: str):
         raise HTTPException(status_code=500, detail="Не удалось получить группу товара с сервера!")
 
 
+# ===============================>>> БЛОК ОПЕРАЦИЙ КАТЕГОРИИ ТОВАРА <<<=============================================
+
+
+# Полуение категории товара
+def get_catrgory_product(db: Session, category_name: str):
+    try:
+        category = db.execute(select(ProductCategory).filter_by(name=category_name)).scalar_one()
+        return category
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось получить категорию товара с сервера!")
+
+
 # ===============================>>> БЛОК ОПЕРАЦИЙ ТОВАРА <<<=============================================
 
 
 # СОЗДАНИЕ нового товара
-def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate) -> product.Product:
-    try:
-        # Дополнительная порверка на совподение имени группы для создаваемого товара. 
-        # Если имя группы (group_name) в теле запроса (product_data) не соответствует существующей в БД группе товара 
-        # То товар не создается
-        group = get_group_product(db=db, group_name=product_data.get("group_name"))
-        if group:
-            # Дополнительная проверка типов для некоторых полей. 
-            # Если поле в значении None то переводить в строку его не нужно, а если обьект или массив то нужно
-            promotion = None
-            if not product_data.get("promotion") is None:
-                promotion = str(product_data.get("promotion"))
-            else:
+def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate):
+    # Дополнительная верификация на ключ доступа сотрудника
+    if product_data.get("MODERATOR_KEY") == MODERATOR_KEY or product_data.get("MODERATOR_KEY") == OWNER_KEY:
+        try:
+            # Дополнительная порверка на совподение имени группы для создаваемого товара. 
+            # Если имя группы (group_name) в теле запроса (product_data) не соответствует существующей в БД группе товара 
+            # То товар не создается
+            category = get_catrgory_product(db=db, category_name=product_data.get("category_name"))
+            group = get_group_product(db=db, group_name=product_data.get("group_name"))
+            if group and category:
+                # Дополнительная проверка типов для некоторых полей. 
+                # Если поле в значении None то переводить в строку его не нужно, а если обьект или массив то нужно
                 promotion = None
-            try:
-                product = Product(
-                    article = product_data.get("article"),
-                    name = product_data.get("name"),
-                    price = product_data.get("price"),
-                    group_name = str(product_data.get("group_name")),
-                    category = str(product_data.get("category")),
-                    tags = str(product_data.get("tags")),
-                    creation_time = product_data.get("creation_time"),
-                    creation_manager_UUID = creator_UUID,
-                    discount = product_data.get("discount"),
-                    specifications = str(product_data.get("specifications")),
-                    country_origin = product_data.get("country_origin"),
-                    description = product_data.get("description"),
-                    images = str(product_data.get("images")),
-                    promotion = promotion,
-                    remains = product_data.get("remains"),
-                )
-                db.add(product)
-                db.commit()
-                db.refresh(product)
-                return product
-            except:
-                raise HTTPException(status_code=500, detail="Не удалось создать новый товар")
-        else:
-            raise HTTPException(status_code=500, detail="Вы пытаетесь создать товар указав имя Группы товара, которая не существует!")
-    except:
-        raise HTTPException(status_code=500, detail="Не удалось создать новый товар. Что-то пошло не так")
+                if not product_data.get("promotion") is None:
+                    promotion = str(product_data.get("promotion"))
+                else:
+                    promotion = None
+                try:
+                    product = Product(
+                        article = product_data.get("article"),
+                        name = product_data.get("name"),
+                        price = product_data.get("price"),
+                        group_name = str(product_data.get("group_name")),
+                        category_name = str(product_data.get("category_name")),
+                        tags = str(product_data.get("tags")),
+                        creation_time = product_data.get("creation_time"),
+                        creation_manager_UUID = creator_UUID,
+                        discount = product_data.get("discount"),
+                        specifications = str(product_data.get("specifications")),
+                        country_origin = product_data.get("country_origin"),
+                        description = product_data.get("description"),
+                        images = str(product_data.get("images")),
+                        promotion = promotion,
+                        remains = product_data.get("remains"),
+                    )
+                    db.add(product)
+                    db.commit()
+                    db.refresh(product)
+                    return product
+                except:
+                    raise HTTPException(status_code=500, detail="Не удалось создать новый товар")
+            else:
+                raise HTTPException(status_code=500, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
+        except:
+            raise HTTPException(status_code=404, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
+    else:
+        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
 
 # ПОЛУЧЕНИЕ товара с БД PRODUCTS
@@ -265,12 +287,11 @@ def get_products(db: Session) -> list[product.Product]:
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
 
-# Ключ доступа для модераторов. Применяется для подтверждения действия в качестве дополнительной верификации
-MODERATOR_KEY = '9dd4f7a7efd9facf9cfbd59b2411c661'
 
 
-# Создание новой группы товара
-def create_group_products(db: Session, data_group: product.ProductGroupCreate):
+
+# Создание новой ГРУППЫ товара
+def create_group_product(db: Session, data_group: product.ProductGroupCreate):
     try:
         if(data_group.MODEATOR_KEY == MODERATOR_KEY):
             new_group = ProductGroup(name = data_group.name, description=data_group.description, image=data_group.image)
@@ -282,6 +303,21 @@ def create_group_products(db: Session, data_group: product.ProductGroupCreate):
             raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
     except:
         raise HTTPException(status_code=400, detail="Не удалось создать группу товара!")
+
+
+# Создание новой КАТЕГОРИИ товара
+def create_category_product(db: Session, data_category: product.ProductCategoryCreate):
+    try:
+        if(data_category.MODEATOR_KEY == MODERATOR_KEY):
+            new_category = ProductCategory(name = data_category.name, description=data_category.description, image=data_category.image)
+            db.add(new_category)
+            db.commit()
+            db.refresh(new_category)
+            return new_category
+        else:
+            raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
+    except:
+        raise HTTPException(status_code=400, detail="Не удалось создать категорию товара!")
 
 
 # Получение данных СОТРУДНИКА по username
