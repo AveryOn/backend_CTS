@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 # Импорт Моделей Pydantic
 from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword, ProductCart
+from schemas_module.comment import CommentCreate, CommentChange
 
 # Импорт инструментов 
 from sqlalchemy.orm import Session
@@ -106,3 +107,19 @@ def delete_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> d
         return {"response_status": 'Successful!'}
     except:
         raise HTTPException(status_code=400, detail="Не удалось удалить пользователя из базы")
+
+
+# ===============================>>> ОПЕРАЦИИ С КОММЕНТАРИЯМИ <<<=============================================
+
+
+# СОЗДАНИЕ комментария. Идентификатор передается в теле запроса
+@user.post('/create-comment/')
+def create_comment(comment_data: CommentCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.create_comment(db=db, comment_data=comment_data)
+
+# ИЗМЕНЕНИЕ (редактирование) комментария
+@user.put('/edit-comment/{comment_id}/')
+def edit_comment(comment_id: int, data_comment: CommentChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.edit_comment(db=db, data_comment=data_comment, comment_id=comment_id)
+
+

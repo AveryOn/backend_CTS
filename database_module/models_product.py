@@ -104,14 +104,15 @@ class Product(BaseProducts):
 class Comment(BaseProducts):
     __tablename__ = "comments"
 
-    id = Column(Integer, primary_key=True, index=True)      # первичный ключ
+    id = Column(Integer, primary_key=True, unique=True, index=True)      # первичный ключ
     owner_id = Column(Integer, unique=True, index=True)     # идентификатор пользователя-создателя комментария
     owner_name = Column(String)       # имя пользователя-создателя
     owner_lastname = Column(String)       # фамилия пользователя-создателя
     data_text = Column(String)      # текст комментария (его тело)
-    images = Column(String, default=None)       # картинки в комментарии
+    images = Column(String, default="[]")       # картинки в комментарии
     rating = Column(Integer)        # оценка товару
-    parent_product_id = Column(Integer, ForeignKey("products.id"))      # идентификатор товара к которому принадлежит этот комментарий
+    creation_time = Column(String)      # время создания комментария
+    parent_product_article = Column(Integer, ForeignKey("products.article"))      # article товара к которому принадлежит этот комментарий
 
     parent_product = relationship("Product", back_populates="comments")     # двусторонняя связь с родительским товаром
 
@@ -124,7 +125,8 @@ class Comment(BaseProducts):
         data_text={self.data_text!r},
         images={self.images!r},
         rating={self.rating!r},
-        parent_product_id={self.parent_product_id!r},
+        creation_time={self.creation_time!r},
+        parent_product_id={self.parent_product_article!r},
         )"""
 
 

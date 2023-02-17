@@ -73,10 +73,10 @@ def create_product(article: int, edit_data: ProductChange, db: Session = Depends
 
 
 # УДАЛЕНИЕ товара
-@owner.put('/delete-product/{article}/')
-# MODERATOR_KEY - приходит с клиента, как тело запроса, поэтому он типа dict 
-def delete_product(article: int, MODERATOR_KEY: dict = Body(default=...), db: Session = Depends(sessions.get_db_PRODUCTS)):
-    if MODERATOR_KEY.get("MODERATOR_KEY") == OWNER_KEY:
+@owner.delete('/delete-product/{article}/{MODERATOR_KEY}/')
+# MODERATOR_KEY - приходит с клиента, как параметр пути 
+def delete_product(article: int, MODERATOR_KEY: str, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    if MODERATOR_KEY == OWNER_KEY:
         return CRUD.delete_product(db=db, article=article, moderator_key=MODERATOR_KEY)
     else:
         raise HTTPException(status_code=401, detail="Ключ модератора неверный!")

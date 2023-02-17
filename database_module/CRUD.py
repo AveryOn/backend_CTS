@@ -295,8 +295,8 @@ def edit_product(db: Session, article: int, edit_data: product.ProductChange):
 
 
 # УДАЛЕНИЕ товара 
-def delete_product(db: Session, article: int, moderator_key: dict):
-    if moderator_key.get("MODERATOR_KEY") == MODERATOR_KEY or moderator_key.get("MODERATOR_KEY") == OWNER_KEY:
+def delete_product(db: Session, article: int, moderator_key: str):
+    if moderator_key == MODERATOR_KEY or moderator_key == OWNER_KEY:
         try:
             product = get_one_product(db=db, article=article)
             db.delete(product)
@@ -308,11 +308,96 @@ def delete_product(db: Session, article: int, moderator_key: dict):
         raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
 
-# ИЗМЕНЕНИЕ рейтинга товара
-def change_rating_product(db: Session, article: int, rating: float):
-    product = get_one_product(db=db, article=article)
-    product.rating = float(rating)
-    return product
+
+# =====================================>>> БЛОК ОПЕРАЦИЙ С КОММЕНТАРИЯМИ <<<=============================================
+
+# Функция вычисляет средний рейтинг относительно отзывов
+def computed_rating(comments: list) -> (float | int) :
+    sum = 0
+    count = 0
+    for comment in comments:
+        sum += comment.rating
+        count += 1
+    rating_product = sum / count
+    return rating_product
+
+
+# СОЗДАНИЕ комментария. На Момент создания нового отзыва о товаре пользователем в этой функции
+# автоматически высчитывается средняя оценка товара относительно всех отзывов включая новый
+def create_comment(db: Session, comment_data: comment.CommentCreate):
+    try:
+        comment = Comment(**comment_data.dict(exclude_none=True, exclude_unset=True))
+        db.add(comment)
+        db.commit()
+        db.refresh(comment)
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось отправить комментарий в Базу Данных")
+    try:
+        # Получаем товар с базы данных чтобы получить все комментарии с оценками и высчитать общую среднюю оценку товара
+        product = get_one_product(db=db, article=comment.parent_product_article)
+        rating_product = computed_rating(product.comments)
+    except:
+        raise HTTPException(status_code=500, detail="Произошла ошибка при вычислении рейтинга товара")
+    try:
+        # Обновление оценки товара относительно высчитанного среднего значения
+        db.execute(update(Product).where(Product.article == comment_data.parent_product_article).values(
+            rating = rating_product
+        ))
+        db.commit()
+        return {"response_status": "Successful!"}
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось обновить рейтинг товара в Базе Данных")
+
+
+# ИЗМЕНЕНИЕ комментария
+def edit_comment(db: Session, data_comment: comment.CommentChange, comment_id: int):
+    edit_data_copy = data_comment.dict(exclude_none=True, exclude_unset=True)
+    try:
+        try:
+            # Обновляем тело комментария в Базе Данных
+            db.execute(update(Comment).where(Comment.id == comment_id).values(
+                **edit_data_copy
+            ))
+            # Фиксация транзации
+            db.commit()
+        except:
+            raise HTTPException(status_code=500, detail="Не удалось обновить тело комментария")
+        try:
+            # Получаем товар с базы данных чтобы получить все комментарии с оценками и высчитать общую среднюю оценку товара
+            product = get_one_product(db=db, article=data_comment.parent_product_article)
+            update_rating_product = computed_rating(product.comments)
+            db.execute(update(Product).where(Product.article == data_comment.parent_product_article).values(
+                rating = update_rating_product
+            ))
+            # Фиксация транзации
+            db.commit()
+            return {"response_status": "Successful!"}
+        except:
+            raise HTTPException(status_code=500, detail="Произошла ошибка при вычислении рейтинга товара")
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось редактировать комментарий")
+
+
+# ПОЛУЧЕНИЕ СПИСКА комментариев 
+def get_all_comments(db: Session, article: int) -> list[comment.Comment]:
+    product = db.execute(select(Product).filter_by(article=article)).scalar_one()
+    return product.comments
+
+
+# УДАЛЕНИЕ комментария. Удалять комментарии могут все роли (пользователи, модераторы и владелец сервиса)
+def delete_comment(db: Session, comment_id: int, article: int):
+    try:
+        comment = db.get(Comment, comment_id)
+        # Дополнительная проверка чтобы товар наверняка соответствовал удаляемому комментарию  
+        if comment.parent_product.article == article:
+            db.delete(comment)
+            db.commit()
+            return {"response_status": "Successful!"}
+        else:
+            raise HTTPException(status_code=500, detail=f"Ошибка сервера. Обнаружена рассинхронизация связи между товаром с артикулом: {article} и комментарием с id: {comment_id}")
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось удалить комментарий")
+
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
 

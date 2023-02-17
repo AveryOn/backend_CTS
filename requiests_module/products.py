@@ -13,6 +13,7 @@ from database_module import CRUD
 
 # Импорт Моделей Pydantic
 from schemas_module.product import ProductCreate, Product
+from schemas_module.comment import Comment
 
 # Импорт инструментов sqlalchemy
 from sqlalchemy.orm import Session
@@ -43,22 +44,13 @@ def get_product(article: int, db: Session = Depends(sessions.get_db_PRODUCTS)) -
     return CRUD.get_one_product(db=db, article=article)
 
 
-
-# ИЗМЕНЕНИЕ рейтинга товара. (Случай, когда пользователь поставил оценку товару)
-# @products.patch('/{article}/add-rating/')
-# def add_rating(
-#     article: int, 
-#     rating: float = Query(default=..., min=1, max=5),
-#     db: Session = Depends(sessions.get_db_PRODUCTS),
-# ):
-#     if rating >= 1:
-#         product = CRUD.get_one_product(db=db, article=article)
-#         if product.rating is None:
-#             return CRUD.change_rating_product(db=db, article=article, rating=float(rating))
-#         else:
-#             product.comments
-#     else:
-#         raise HTTPException(status_code=400, detail="Оценка товара не определена! Операция не может быть выполнена!")
+# ПОЛУЧЕНИЕ СПИСКА комментариев конкретного товара. Индексация товара по артикулу
+@products.get('/get-comments/{article}', response_model=list[Comment])
+def get_comments(article: int, db: Session = Depends(sessions.get_db_PRODUCTS)) -> list[Comment]:
+    return CRUD.get_all_comments(db=db, article=article)
 
 
-# product.comments[0].rating
+# УДАЛЕНИЕ комментария
+@products.delete('/{article}/delete-comment/{comment_id}/')
+def delete_comment(article: int, comment_id: int, db: Session = Depends(sessions.get_db_PRODUCTS)):
+    return CRUD.delete_comment(db=db, comment_id=comment_id, article=article)
