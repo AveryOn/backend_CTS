@@ -28,9 +28,11 @@ class CommentCreate(CommentBase):
 
 # Данная модель используется как тело запроса для изменения/редактирования существующего комментария на клиенте
 class CommentChange(CommentBase):
+    # поля которые допустимо менять для комментария
     data_text: str | None=None
     images: str | None=None
     rating: int | None=None
+    # данный атрибут не служит для изменения. Он отправляется на сервер для дополнительной проверки
     parent_product_article: int
 
 
@@ -43,7 +45,7 @@ class Comment(CommentBase):
     data_text: str | None=None
     images: str | None=None
     rating: int
-    creation_time: str | None=None
+    creation_time: str
     parent_product_article: int
     # orm_mode для корректного взаимодействия с БД
     class Config:

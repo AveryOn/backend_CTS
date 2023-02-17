@@ -392,9 +392,19 @@ def delete_comment(db: Session, comment_id: int, article: int):
         if comment.parent_product.article == article:
             db.delete(comment)
             db.commit()
-            return {"response_status": "Successful!"}
         else:
             raise HTTPException(status_code=500, detail=f"Ошибка сервера. Обнаружена рассинхронизация связи между товаром с артикулом: {article} и комментарием с id: {comment_id}")
+        try:
+            product = get_one_product(db=db, article=article)
+            rating_product = computed_rating(product.comments)
+            db.execute(update(Product).where(Product.article == article).values(
+                rating = rating_product
+            ))
+            db.commit()
+            db.refresh(product)
+            return {"response_status": "Successful!"}
+        except:
+            raise HTTPException(status_code=500, detail="Произошла ошибка при вычислении рейтинга товара")
     except:
         raise HTTPException(status_code=500, detail="Не удалось удалить комментарий")
 

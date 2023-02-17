@@ -117,6 +117,7 @@ def delete_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> d
 def create_comment(comment_data: CommentCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
     return CRUD.create_comment(db=db, comment_data=comment_data)
 
+
 # ИЗМЕНЕНИЕ (редактирование) комментария
 @user.put('/edit-comment/{comment_id}/')
 def edit_comment(comment_id: int, data_comment: CommentChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
