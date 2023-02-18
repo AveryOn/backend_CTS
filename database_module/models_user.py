@@ -21,6 +21,9 @@ class User(BaseUsers):
     hashed_password = Column(String)        # Хеш пароля  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     chats_id = Column(String)       # Массив с id чатов которые есть у данного пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     is_active = Column(Boolean, default=True)       # Флаг - активен ли пользователь (эксперементальный атрибут)  (НЕОБЯЗАТЕЛЬНЫЙ)
+    
+    # двусторонняя связь с таблицей ЧАТОВ данного пользователя
+    chats = relationship("UserChat")    
     # двусторонняя связь с таблицей КОРЗИНЫ данного пользователя
     cart = relationship("UserCart", back_populates="cart")      # Массив корзины с товаром
 
@@ -70,8 +73,10 @@ class ServicePerson(BaseUsers):
     image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     sex = Column(String)        # Пол пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     hashed_password = Column(String)        # Хеш пароля  (!! ОБЯЗАТЕЛЬНЫЙ !!)
-    chats_id = Column(String)       # Массив с id чатов которые есть у данного пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     is_active = Column(Boolean, default=True)       # Флаг - активен ли пользователь (эксперементальный атрибут)  (НЕОБЯЗАТЕЛЬНЫЙ)
+
+    # двусторонняя связь с таблицей ЧАТОВ данного сотрудника
+    chats = relationship("UserChat")
 
     # служебный метод для отладки
     def __repr__(self):
@@ -86,6 +91,54 @@ class ServicePerson(BaseUsers):
         sex={self.sex!r},
         hashed_password={self.hashed_password!r},
         is_active={self.is_active!r},
+        )"""
+
+
+# ТАБЛИЦА ЧАТОВ ПОЛЬЗОВАТЕЛЕЙ
+class UserChat(BaseUsers):
+    __tablename__ = "chats"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))     # Идентификатор пользователя начавшего чат
+    service_person_id = Column(Integer, ForeignKey("service_person.id"))     # Идентификатор сотрудника отвечающего за коммуникацию с пользователями
+    creation_time = Column(String)      # Время создания данного чата
+
+    # массив всех сообщений данного чата
+    messages = relationship("Message", back_populates="parent_chat")        # Массив сообщений данного чата
+
+    # служебный метод для отладки
+    def __repr__(self):
+        return f"""UserChat( 
+            id={self.id!r}, 
+            user_id={self.user_id!r}, 
+            service_person_id={self.service_person_id!r}, 
+            creation_time={self.creation_time!r},
+        )"""
+
+
+# ТАБЛИЦА С СООБЩЕНИЯМИ
+class Message(BaseUsers):
+    __tablename__ = "messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id_from = Column(Integer)      # Идентификатор пользователя-ОТПРАВИТЕЛЯ данного сообщения
+    user_id_to = Column(Integer)        # Идентификатор пользователя-ПОЛУЧАТЕЛЯ данного сообщения
+    creation_time = Column(String)      # Время создания данного сообщения
+    data = Column(String, default=str({"text": None, "images": None}))       # Тело сообщения (Обьект в котором содержатся поля text и images)
+    parent_chat_id = Column(Integer, ForeignKey("chats.id"))        # Идентификатор родительского чата которому принадлежит данное сообщение
+
+    # двусторонняя связь данного сообщения с чатом-родителем, которому оно принадлежит 
+    parent_chat = relationship("UserChat", back_populates="messages")       # Обьект родительского чата
+
+    # служебный метод для отладки
+    def __repr__(self):
+        return f"""Message( 
+            id={self.id!r}, 
+            user_id_from={self.user_id_from!r}, 
+            user_id_to={self.user_id_to!r}, 
+            creation_time={self.creation_time!r},
+            data={self.data!r},
+            parent_chat_id={self.parent_chat_id!r},
         )"""
 
 

@@ -11,7 +11,6 @@ import ast
 # Импорт ORM-таблиц
 from database_module.models_user import User, UserCart, ServicePerson
 from database_module.models_product import Product, Comment, ProductGroup, ProductCategory
-from database_module.models_messanger import UserChat, Message
 
 # Импорт Модулей с Pydantic-моделями
 from schemas_module import user, user_cart, user_chat, product, message, comment
@@ -141,6 +140,14 @@ def get_user_by_id(db: Session, id: int) -> user.User:
         return db.get(User, id)
     except:
         raise HTTPException(status_code=404, detail="Невозможно получить пользователя по ID")
+
+
+# ПОЛУЧЕНИЕ всех пользователей
+def get_all_users(db: Session) -> list[user.User]:
+    try:
+        return db.scalars(select(User)).all()
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось получить список пользователей из БАЗЫ ДАННЫХ")
 
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ

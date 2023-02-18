@@ -74,6 +74,12 @@ def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
         raise HTTPException(status_code=401, detail="Не удалось зарегистрировать нового пользователя!")
 
 
+# ПОЛУЧЕНИЕ всех пользователей
+@user.get('/get-all-users/', response_model=list[User])
+def get_all_users(db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.get_all_users(db=db)
+
+
 # Получение данных зарегестрированного ПОЛЬЗОВАТЕЛЯ. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @user.get('/me/', response_model=User)
