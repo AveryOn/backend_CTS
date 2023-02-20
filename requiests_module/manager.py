@@ -121,3 +121,19 @@ def get_category(category_name: str, db: Session = Depends(sessions.get_db_PRODU
 @manager.get('/get-all-category-product/', response_model=list[ProductCategory])
 def get_all_category(db: Session = Depends(sessions.get_db_PRODUCTS)) -> list[ProductCategory]:
     return CRUD.get_all_category_product(db=db)
+
+
+# ===============================>>> ОПЕРАЦИИ С МЕССЕНДЖЕРОМ <<<=============================================
+
+
+# ПОЛУЧЕНИЕ всех чатов пользователя
+@manager.get('/{manager_UUID}/get-all-chats/')
+def get_all_chats_manager(manager_UUID: str, db: Session = Depends(sessions.get_db_USERS)) -> list:
+    return CRUD.get_all_chats_manager(db=db, manager_UUID=manager_UUID)
+
+
+
+
+
+
+

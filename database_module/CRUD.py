@@ -9,7 +9,7 @@ from fastapi import HTTPException
 import ast
 
 # Импорт ORM-таблиц
-from database_module.models_user import User, UserCart, ServicePerson
+from database_module.models_user import User, UserCart, ServicePerson, UserChat
 from database_module.models_product import Product, Comment, ProductGroup, ProductCategory
 
 # Импорт Модулей с Pydantic-моделями
@@ -414,6 +414,38 @@ def delete_comment(db: Session, comment_id: int, article: int):
             raise HTTPException(status_code=500, detail="Произошла ошибка при вычислении рейтинга товара")
     except:
         raise HTTPException(status_code=500, detail="Не удалось удалить комментарий")
+
+
+# ===============================>>> БЛОК ОПЕРАЦИЙ МЕССЕНДЖЕРА <<<=============================================
+
+
+# СОЗДАНИЕ нового чата ПОЛЬЗОВАТЕЛЯ
+def create_new_chat(db: Session, data_chat: user_chat.UserChatCreate):
+    try:
+        chats = db.scalars(select(UserChat)).all()
+        return chats
+        # user_chats: list[dict] = user.chats
+        # new_chat = UserChat(**data_chat.dict())
+        # db.add(new_chat)
+        # db.commit()
+        # db.refresh(new_chat)
+        # return {"response_status": "Successful!"}
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось создать новый чат")
+
+
+# ПОЛУЧЕНИЕ всех чатов ПОЛЬЗОВАТЕЛЯ
+def get_all_chats_user(db: Session, user_id: int) -> list:
+    # сначала получаем текущего пользователя
+    user: User = db.execute(select(User).filter_by(id=user_id)).scalar_one()
+    return user.chats
+
+# ПОЛУЧЕНИЕ всех чатов СОТРУДНИКА
+def get_all_chats_manager(db: Session, manager_UUID: str):
+    # сначала получаем текущего сотрудника
+    service_person: ServicePerson = db.execute(select(ServicePerson).filter_by(UUID=manager_UUID)).scalar_one()
+    return service_person.chats
+
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================

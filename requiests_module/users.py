@@ -11,6 +11,7 @@ from pydantic import BaseModel
 # Импорт Моделей Pydantic
 from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword, ProductCart
 from schemas_module.comment import CommentCreate, CommentChange
+from schemas_module.user_chat import UserChatCreate, UserChat
 
 # Импорт инструментов 
 from sqlalchemy.orm import Session
@@ -128,5 +129,22 @@ def create_comment(comment_data: CommentCreate, db: Session = Depends(sessions.g
 @user.put('/edit-comment/{comment_id}/')
 def edit_comment(comment_id: int, data_comment: CommentChange, db: Session = Depends(sessions.get_db_PRODUCTS)):
     return CRUD.edit_comment(db=db, data_comment=data_comment, comment_id=comment_id)
+
+
+# ===============================>>> ОПЕРАЦИИ С МЕССЕНДЖЕРОМ <<<=============================================
+
+# СОЗДАНИЕ нового чата
+@user.post('/create-new-chat/')
+def create_new_chat(data_chat: UserChatCreate, db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.create_new_chat(db=db, data_chat=data_chat)
+
+
+# ПОЛУЧЕНИЕ всех чатов пользователя
+@user.get('/{user_id}/get-all-chats/')
+def get_all_chats_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> list:
+    return CRUD.get_all_chats_user(db=db, user_id=user_id)
+
+
+
 
 
