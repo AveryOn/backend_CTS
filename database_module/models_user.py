@@ -108,9 +108,9 @@ class UserChat(BaseUsers):
 
     # служебный метод для отладки
     def __repr__(self):
-        return f"""UserChat( 
+        return f"""UserChat(
             id={self.id!r}, 
-            user_id={self.user_id!r}, 
+            user_id={self.user_id!r},
             service_person_id={self.service_person_id!r}, 
             creation_time={self.creation_time!r},
         )"""

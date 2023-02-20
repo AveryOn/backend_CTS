@@ -9,7 +9,7 @@ from fastapi import HTTPException
 import ast
 
 # Импорт ORM-таблиц
-from database_module.models_user import User, UserCart, ServicePerson, UserChat
+from database_module.models_user import User, UserCart, ServicePerson, UserChat, Message
 from database_module.models_product import Product, Comment, ProductGroup, ProductCategory
 
 # Импорт Модулей с Pydantic-моделями
@@ -422,14 +422,11 @@ def delete_comment(db: Session, comment_id: int, article: int):
 # СОЗДАНИЕ нового чата ПОЛЬЗОВАТЕЛЯ
 def create_new_chat(db: Session, data_chat: user_chat.UserChatCreate):
     try:
-        chats = db.scalars(select(UserChat)).all()
-        return chats
-        # user_chats: list[dict] = user.chats
-        # new_chat = UserChat(**data_chat.dict())
-        # db.add(new_chat)
-        # db.commit()
-        # db.refresh(new_chat)
-        # return {"response_status": "Successful!"}
+        new_chat = UserChat(**data_chat.dict())
+        db.add(new_chat)
+        db.commit()
+        db.refresh(new_chat)
+        return {"response_status": "Successful!"}
     except:
         raise HTTPException(status_code=500, detail="Не удалось создать новый чат")
 
@@ -440,6 +437,7 @@ def get_all_chats_user(db: Session, user_id: int) -> list:
     user: User = db.execute(select(User).filter_by(id=user_id)).scalar_one()
     return user.chats
 
+
 # ПОЛУЧЕНИЕ всех чатов СОТРУДНИКА
 def get_all_chats_manager(db: Session, manager_UUID: str):
     # сначала получаем текущего сотрудника
@@ -447,9 +445,22 @@ def get_all_chats_manager(db: Session, manager_UUID: str):
     return service_person.chats
 
 
+# СОЗДАНИЕ нового сообщения
+def create_new_message(db: Session, data_message: message.MessageCreate):
+    new_message = Message(**data_message.dict())
+    db.add(new_message)
+    db.commit()
+    db.refresh(new_message)
+    return {"response_status": "Successful!"}
+
+
+# ПОЛУЧЕНИЕ списка сообщений чата
+def get_chat_messages(db: Session, chat_id: int):
+    chat = db.get(UserChat, chat_id)
+    return chat.messages
+
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ СОТРУДНИКОВ (МЕНЕДЖЕРОВ/МОДЕРАТОРОВ) <<<=============================================
-
 
 
 # Создание новой ГРУППЫ товара
