@@ -131,7 +131,6 @@ class ServicePerson(ServicePersonBase):
     image: str | None=None
     sex: str
     is_active: bool = False
-    chats_id: int | None=None
 
     # orm_mode для корректного взаимодействия с БД
     class Config:

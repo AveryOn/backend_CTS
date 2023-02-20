@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from database_module import CRUD
 
 # Импорт Моделей Pydantic
-from schemas_module.user import UserCreate, User, UserLogin, ServicePersonLogin
+from schemas_module.user import UserCreate, User, UserLogin, ServicePersonLogin, ServicePerson
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions
@@ -25,6 +25,7 @@ from datetime import timedelta
 auth = APIRouter(
     tags=["auth"],
 )
+
 
 # Операция пути для получения токена доступа для всех ПОЛЬЗОВАТЕЛЕЙ
 @auth.post("/login-user", response_model=Token)
@@ -51,34 +52,31 @@ async def get_access_token_user(form_data: UserLogin, db: Session = Depends(sess
 # Операция пути для получения токена доступа для СОТРУДНИКОВ СЕРВИСА
 @auth.post("/login-service-person")
 async def get_access_token_service_person(form_data: ServicePersonLogin, db: Session = Depends(sessions.get_db_USERS)):
-    try:
-        service_person = authenticate_service_person(
-            db=db, 
-            username=form_data.username, 
-            password=form_data.password,
-            UUID=form_data.UUID,
-            KEY_ACCESS=form_data.KEY_ACCESS,
+    service_person = authenticate_service_person(
+        db=db,
+        username=form_data.username, 
+        password=form_data.password,
+        UUID=form_data.UUID,
+        KEY_ACCESS=form_data.KEY_ACCESS,
+    )
+    # Если СОТРУДНИК не прошел аутентификацию через username, password, UUID и KEY_ACCESS, то поднимается исключение
+    if not service_person:
+        raise HTTPException(
+            status_code=401,
+            detail="Не правильно введены логин или пароль!",
+            headers={"WWW-Authenticate": "Bearer"},
         )
-        # Если СОТРУДНИК не прошел аутентификацию через username, password, UUID и KEY_ACCESS, то поднимается исключение
-        if not service_person:
-            raise HTTPException(
-                status_code=401,
-                detail="Не правильно введены логин или пароль!",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        access_token_expires = timedelta(minutes=TOKEN_KEEP_ALIVE)
-        # создание токена доступа
-        access_token = create_access_token(
-            data_token={"sub": str({
-                    "UUID": form_data.UUID, 
-                    "KEY_ACCESS": form_data.KEY_ACCESS, 
-                    "username": form_data.username
-                })
-            },
-            expires_time=access_token_expires,
-        )
-        return {"access_token": access_token, "token_type": "bearer"}
-    except:
-        raise HTTPException(status_code=401, detail="Что-то пошло не так. Возможно вы ввели не верные учетные данные") 
+    access_token_expires = timedelta(minutes=TOKEN_KEEP_ALIVE)
+    # создание токена доступа
+    access_token = create_access_token(
+        data_token={"sub": str({
+                "UUID": form_data.UUID, 
+                "KEY_ACCESS": form_data.KEY_ACCESS, 
+                "username": form_data.username
+            })
+        },
+        expires_time=access_token_expires,
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 

@@ -420,7 +420,6 @@ def delete_comment(db: Session, comment_id: int, article: int):
 
 
 
-
 # Создание новой ГРУППЫ товара
 def create_group_product(db: Session, data_group: product.ProductGroupCreate):
     try:
@@ -452,7 +451,7 @@ def create_category_product(db: Session, data_category: product.ProductCategoryC
 
 
 # Получение данных СОТРУДНИКА по username
-def get_service_person(db: Session, username: str) -> user.ServicePerson:
+def get_service_person(db: Session, username: str):
     # Получение пользователя по username
     try:
         return db.execute(select(ServicePerson).filter_by(username = username)).scalar_one()
@@ -460,6 +459,13 @@ def get_service_person(db: Session, username: str) -> user.ServicePerson:
         # Поднимает исключение если СОТРУДНИК с таким username не найден
         raise HTTPException(status_code=404, detail=f"Пользователь с логином '{username}' не найден!")
  
+
+# ПОЛУЧЕНИЕ всех СОТРУДНИКОВ с бд
+def get_all_service_person(db: Session):
+    try:
+        return db.scalars(select(ServicePerson)).all()
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось получить список сотрудников сервиса!")
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ ВЛАДЕЛЬЦА <<<=============================================

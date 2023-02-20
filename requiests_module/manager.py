@@ -36,12 +36,17 @@ manager = APIRouter(
 
 # ===============================>>> БЛОК ОПЕРЦИЙ ДЛЯ СОТРУДНИКА (МЕНЕДЖЕРА/МОДЕРАТОРА) <<<============================================
 
+
 # Получение данных зарегестрированного СОТРУДНИКА сервиса. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @manager.get('/me/', response_model=ServicePerson)
 def get_user(service_person: ServicePerson = Depends(auth.get_current_service_person)):
     return service_person
 
+
+@manager.get('/get-all-service-person/', response_model=list[ServicePerson])
+def get_all_service_person(db: Session = Depends(sessions.get_db_USERS)) -> list[ServicePerson]:
+    return CRUD.get_all_service_person(db = db)
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ТОВАРАМИ <<<============================================
 
