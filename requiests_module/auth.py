@@ -26,6 +26,8 @@ auth = APIRouter(
     tags=["auth"],
 )
 
+# Жизненный цикл токена доступа (в минутах)
+TOKEN_KEEP_ALIVE = 30
 
 # Операция пути для получения токена доступа для всех ПОЛЬЗОВАТЕЛЕЙ
 @auth.post("/login-user", response_model=Token)
@@ -59,24 +61,18 @@ async def get_access_token_service_person(form_data: ServicePersonLogin, db: Ses
         UUID=form_data.UUID,
         KEY_ACCESS=form_data.KEY_ACCESS,
     )
-    # Если СОТРУДНИК не прошел аутентификацию через username, password, UUID и KEY_ACCESS, то поднимается исключение
-    if not service_person:
-        raise HTTPException(
-            status_code=401,
-            detail="Не правильно введены логин или пароль!",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
     access_token_expires = timedelta(minutes=TOKEN_KEEP_ALIVE)
     # создание токена доступа
     access_token = create_access_token(
         data_token={"sub": str({
                 "UUID": form_data.UUID, 
                 "KEY_ACCESS": form_data.KEY_ACCESS, 
-                "username": form_data.username
+                "username": form_data.username,
+                "role": service_person.role,
             })
         },
         expires_time=access_token_expires,
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return [{"access_token": access_token, "token_type": "bearer"}, {"role": service_person.role}]
 
 

@@ -72,7 +72,7 @@ def authenticate_user(db: Session, login: str, password: str) -> user.User:
         return user_from_db
     except:
         # Поднимает исключение, если пользователь ввел неверные логин или пароль
-        raise HTTPException(status_code=404, detail='Пользователь не найден в базе!')
+        raise HTTPException(status_code=404, detail='Неверно введены логин или пароль')
 
 
 # Функция для аутентификации СОТРУДНИКА по логину паролю, UUID, KEY_ACCESS
@@ -81,15 +81,15 @@ def authenticate_service_person(db: Session, username: str, password: str, UUID:
         try:
             service_person_from_db = CRUD.get_service_person(db=db, username=username)
             if not service_person_from_db:
-                raise HTTPException(status_code=401, detail="Пользователя с таким логином не существует!")
+                raise HTTPException(status_code=401, detail="username_error")
             if not (verify_password(input_password=password, hashed_password=service_person_from_db.hashed_password)):
-                raise HTTPException(status_code=401, detail="Неверный пароль!")
-            if not service_person_from_db.UUID == UUID:
-                raise HTTPException(status_code=401, detail="Неверный уникальный идентификатор!")
-            return service_person_from_db
+                raise HTTPException(status_code=401, detail="password_error")
         except:
-            # Поднимает исключение, если пользователь ввел неверные логин или пароль
-            raise HTTPException(status_code=401, detail='Пользователь не найден в базе!')
+            raise HTTPException(status_code=401, detail="Неверно введены логин или пароль!")
+        if not service_person_from_db.UUID == UUID:
+            raise HTTPException(status_code=401, detail="Неверно введен уникальный идентификатор сотрудника!")
+        return service_person_from_db
+
     else:
         raise HTTPException(status_code=500, detail="Ключ доступа неверный!")
 
@@ -161,3 +161,36 @@ def get_current_service_person(token: str = Depends(oauth2_service_person), db: 
         raise credentials_exception
     return service_person
 
+
+# ПРОВЕРКА ТОКЕНА ДОСТУПА СОТРУДНИКА
+def verificate_token(token: str = Depends(oauth2_service_person), db: Session = Depends(sessions.get_db_USERS)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Невозможно проверить учетные данные!",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        # В token_data лежит словарь вида: {'UUID': str, 'KEY_ACCESS': str, 'username': str}
+        token_data: dict = ast.literal_eval(payload.get("sub"))
+        username: str = token_data.get("username")
+        KEY_ACCESS: str = token_data.get("KEY_ACCESS")
+        UUID: str = token_data.get("UUID")
+        if username is None:
+            raise credentials_exception
+        if KEY_ACCESS != MANAGER_KEY:
+            raise credentials_exception
+        if UUID is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    # Получение сотрудника с БД
+    service_person = CRUD.get_service_person(db=db, username=username)
+    if not service_person.UUID == UUID:
+        raise credentials_exception
+    if service_person is None:
+        raise credentials_exception
+    if service_person.role == "owner":
+        return {"status": 200, "role": "owner"}
+    elif service_person.role == "manager":
+        return {"status": 200, "role": "manager"}
