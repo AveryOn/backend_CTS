@@ -73,6 +73,6 @@ async def get_access_token_service_person(form_data: ServicePersonLogin, db: Ses
         },
         expires_time=access_token_expires,
     )
-    return [{"access_token": access_token, "token_type": "bearer"}, {"role": service_person.role}]
+    return [{"access_token": access_token, "token_type": "bearer"}, {"role": service_person.role, "UUID": service_person.UUID}]
 
 

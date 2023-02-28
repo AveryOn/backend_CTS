@@ -191,6 +191,6 @@ def verificate_token(token: str = Depends(oauth2_service_person), db: Session = 
     if service_person is None:
         raise credentials_exception
     if service_person.role == "owner":
-        return {"status": 200, "role": "owner"}
+        return {"status": 200, "role": "owner", "UUID": service_person.UUID}
     elif service_person.role == "manager":
-        return {"status": 200, "role": "manager"}
+        return {"status": 200, "role": "manager", "UUID": service_person.UUID}
