@@ -24,6 +24,7 @@ class UserCreate(UserBase):
     email: str
     username: str
     password: str
+    creation_time: str
 
 
 # Модель для аннотации аргументов которые приходят с клиента (Для обновления данных ПОЛЬЗОВАТЕЛЯ)
@@ -35,6 +36,7 @@ class UserChangeData(UserBase):
     lastname: str | None=None
     image: str | None=None
     sex: str | None=None
+    edit_time: str | None=None
 
     # orm_mode для корректного взаимодействия с БД
     class Config:
@@ -53,8 +55,9 @@ class User(UserBase):
     lastname: str | None=None
     image: str | None=None
     sex: str | None=None
+    creation_time: str
+    edit_time: str | None=None
     is_active: bool | None=None
-    chats_id: int | None=None
 
     # orm_mode для корректного взаимодействия с БД
     class Config:
@@ -113,9 +116,10 @@ class ServicePersonCreate(ServicePersonBase):
     lastname: str
     username: str
     password: str
-    # allows: dict
+    allows: str
     OWNER_KEY: str
     sex: str
+    creation_time: str
 
 
 # Модель для чтения сотрудника из БД / Возврата на клиент
@@ -125,11 +129,13 @@ class ServicePerson(ServicePersonBase):
     username: str
     email: str
     role: str
-    # allows: dict | None=None
+    allows: str | None=None
     name: str
     lastname: str
     image: str | None=None
     sex: str
+    creation_time: str
+    edit_time: str | None=None
     is_active: bool = False
 
     # orm_mode для корректного взаимодействия с БД

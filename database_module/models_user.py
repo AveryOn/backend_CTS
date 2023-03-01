@@ -18,8 +18,9 @@ class User(BaseUsers):
     lastname = Column(String)       # Фамилия пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     sex = Column(String)        # Пол пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    creation_time = Column(String)      # Время создания аккаунта (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    edit_time = Column(String)        # Время последнего редактирования аккаунта (НЕОБЯЗАТЕЛЬНЫЙ)
     hashed_password = Column(String)        # Хеш пароля  (!! ОБЯЗАТЕЛЬНЫЙ !!)
-    chats_id = Column(String)       # Массив с id чатов которые есть у данного пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     is_active = Column(Boolean, default=True)       # Флаг - активен ли пользователь (эксперементальный атрибут)  (НЕОБЯЗАТЕЛЬНЫЙ)
     
     # двусторонняя связь с таблицей ЧАТОВ данного пользователя
@@ -67,11 +68,13 @@ class ServicePerson(BaseUsers):
     username = Column(String, unique=True, index=True)      # Никнэйм пользователя  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     email = Column(String, unique=True, index=True)     # Эл. почта  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     role = Column(String, index=True)       # Роль пользователя в систиеме. Допустимые роли: 1) manager, 2) owner (!! ОБЯЗАТЕЛЬНЫЙ !!)
-    # allows = Column(String)     # Допустимые права для работы с магазином (НЕОБЯЗАТЕЛЬНЫЙ)
+    allows = Column(String)     # Допустимые права для работы с магазином (НЕОБЯЗАТЕЛЬНЫЙ)
     name = Column(String)       #  Имя пользоваателя  (НЕОБЯЗАТЕЛЬНЫЙ)
     lastname = Column(String)       # Фамилия пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     sex = Column(String)        # Пол пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
+    creation_time = Column(String)      # Время создания аккаунта (!! ОБЯЗАТЕЛЬНЫЙ !!)
+    edit_time = Column(String)        # Время последнего редактирования аккаунта (НЕОБЯЗАТЕЛЬНЫЙ)
     hashed_password = Column(String)        # Хеш пароля  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     is_active = Column(Boolean, default=True)       # Флаг - активен ли пользователь (эксперементальный атрибут)  (НЕОБЯЗАТЕЛЬНЫЙ)
 

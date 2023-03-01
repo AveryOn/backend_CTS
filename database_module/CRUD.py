@@ -95,17 +95,40 @@ def remove_cart_product(db: Session, user_id: int, update_cart: list) -> dict:
 
 # Создание пользователя и корзины товаров
 def create_user(db: Session, user: user.UserCreate):
-    hashed_password = auth.hash_password(user.password)
-    new_user = User(email = user.email, username = user.username, hashed_password = hashed_password)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    new_cart = UserCart(owner_id = new_user.id, data = '[]')
-    db.add(new_cart)
-    db.commit()
-    db.refresh(new_cart)
-    return new_user
+    try:
+        hashed_password = auth.hash_password(user.password)
+    except:
+        raise HTTPException(status_code=500, detail="При создании нового пользователя не удалось обработать пароль")
+    
+    try:
+        new_user = User(
+            email=user.email, 
+            username=user.username, 
+            hashed_password=hashed_password, 
+            creation_time=user.creation_time
+        )
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось создать нового пользователя перед записью в базу данных")
 
+    try:
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось записать нового пользователя в базу данных")
+
+    try:
+        new_cart = UserCart(owner_id = new_user.id, data = '[]')
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось создать корзину нового пользователя перед записью в базу данных")
+    try:
+        db.add(new_cart)
+        db.commit()
+        db.refresh(new_cart)
+    except:
+        raise HTTPException(status_code=500, detail="Не удалось записать корзину нового пользователя в базу данных")
+        
+    return {"response_status": "Successful!"}
 
 # Удаление ПОЛЬЗОВАТЕЛЯ с базы данных USERS
 def delete_user(db: Session, user_id: int) -> None:

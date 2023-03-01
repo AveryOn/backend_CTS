@@ -67,12 +67,10 @@ def remove_cart_product(user_id: int, update_cart: list | UpdateCart,  db: Sessi
 
 
 # Создание нового ПОЛЬЗОВАТЕЛЯ
-@user.post('/registration/', response_model=User)
+@user.post('/registration/')
 def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
-    try:
-        return CRUD.create_user(db=db, user=user)
-    except:
-        raise HTTPException(status_code=401, detail="Не удалось зарегистрировать нового пользователя!")
+    return CRUD.create_user(db=db, user=user)
+
 
 
 # ПОЛУЧЕНИЕ всех пользователей

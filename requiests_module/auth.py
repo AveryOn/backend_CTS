@@ -27,7 +27,7 @@ auth = APIRouter(
 )
 
 # Жизненный цикл токена доступа (в минутах)
-TOKEN_KEEP_ALIVE = 30
+TOKEN_KEEP_ALIVE = 120
 
 # Операция пути для получения токена доступа для всех ПОЛЬЗОВАТЕЛЕЙ
 @auth.post("/login-user", response_model=Token)
