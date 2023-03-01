@@ -33,7 +33,7 @@ SECRET_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 OWNER_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 MANAGER_KEY = '9dd4f7a7efd9facf9cfbd59b2411c661'
 ALGORITHM = 'HS256'
-TOKEN_KEEP_ALIVE = 30
+TOKEN_KEEP_ALIVE = 1
 
 # Модель для работы с ХЕШЕМ паролей (валидация и создание)
 passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -127,6 +127,27 @@ def get_current_user(token: str = Depends(oauth2_user), db: Session = Depends(se
     return user
 
 
+# ПРОВЕРКА ТОКЕНА ДОСТУПА ПОЛЬЗОВАТЕЛЯ
+def verificate_token_user(token: str = Depends(oauth2_service_person), db: Session = Depends(sessions.get_db_USERS)):
+    credentials_exception = HTTPException(
+        status_code=401,
+        detail="Невозможно проверить учетные данные!",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    # Получение пользователя по логину с БД
+    user = CRUD.get_user(db=db, login=username)
+    if user is None:
+        raise credentials_exception
+    return {"status": 200, "role": user.role, "id": user.id}
+
+
 # ПОЛУЧЕНИЕ СОТРУДНИКА ПО ТОКЕНУ ДОСТУПА
 # Так как в обьекте payload токена в ключе "sub" можно хранить только одну строку как данные
 # А для проверки сотрудников нужно учитывать несколько параметров для авторизации, 
@@ -163,7 +184,7 @@ def get_current_service_person(token: str = Depends(oauth2_service_person), db: 
 
 
 # ПРОВЕРКА ТОКЕНА ДОСТУПА СОТРУДНИКА
-def verificate_token(token: str = Depends(oauth2_service_person), db: Session = Depends(sessions.get_db_USERS)):
+def verificate_token_employ(token: str = Depends(oauth2_service_person), db: Session = Depends(sessions.get_db_USERS)):
     credentials_exception = HTTPException(
         status_code=401,
         detail="Невозможно проверить учетные данные!",

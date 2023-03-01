@@ -21,7 +21,7 @@ from database_module import CRUD
 
 # Импорт Модуля Actions
 from requiests_module.actions import sessions
-from requiests_module.actions.auth import get_current_user
+from requiests_module.actions import auth
 
 # Создание экземпляра маршрута, все пути которые относятся к этому маршруту 
 # будут начинаться с /users
@@ -51,8 +51,10 @@ def add_cart_products(login: str, product: dict | ProductCart,  db: Session = De
     except:
         raise HTTPException(status_code=401, detail="Не удалось добавить товар в корзину!")
 
+
 class UpdateCart(BaseModel):
     update_cart: list
+
 
 # Удаление товаров с корзины. update_cart - массив корзины уже не включаюший удаляемые товары.
 # Удаление товара с массива должно происходить на клиенте после чего этот массив отправляется на Бэкенд 
@@ -72,6 +74,12 @@ def create_user(user: UserCreate, db: Session = Depends(sessions.get_db_USERS)):
     return CRUD.create_user(db=db, user=user)
 
 
+# Проверка токена доступа ПОЛЬЗОВАТЕЛЯ
+# Ответ вида: {"status": 200, "role": "user", "id": 123}
+@user.get('/verificate/')
+def verificate(response = Depends(auth.verificate_token_user)) -> dict:
+    return response
+
 
 # ПОЛУЧЕНИЕ всех пользователей
 @user.get('/get-all-users/', response_model=list[User])
@@ -82,7 +90,7 @@ def get_all_users(db: Session = Depends(sessions.get_db_USERS)):
 # Получение данных зарегестрированного ПОЛЬЗОВАТЕЛЯ. 
 # С клиента приходит заголовок вида:  'Authorization': 'Bearer ' + access_token
 @user.get('/me/', response_model=User)
-def get_user(user: User = Depends(get_current_user)):
+def get_user(user: User = Depends(auth.get_current_user)):
     return user
 
 

@@ -27,10 +27,11 @@ auth = APIRouter(
 )
 
 # Жизненный цикл токена доступа (в минутах)
-TOKEN_KEEP_ALIVE = 120
+TOKEN_KEEP_ALIVE = 1
+
 
 # Операция пути для получения токена доступа для всех ПОЛЬЗОВАТЕЛЕЙ
-@auth.post("/login-user", response_model=Token)
+@auth.post("/login-user")
 async def get_access_token_user(form_data: UserLogin, db: Session = Depends(sessions.get_db_USERS)):
     try:
         user = authenticate_user(db=db, login=form_data.username, password=form_data.password)
@@ -46,7 +47,7 @@ async def get_access_token_user(form_data: UserLogin, db: Session = Depends(sess
             data_token={"sub": user.username},
             expires_time=access_token_expires,
         )
-        return {"access_token": access_token, "token_type": "bearer"}
+        return [{"access_token": access_token, "token_type": "bearer"}, {"role": user.role, "user_id": user.id}]
     except:
         raise HTTPException(status_code=401, detail="Что-то пошло не так. Возможно вы ввели не верные учетные данные") 
 

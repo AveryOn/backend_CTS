@@ -45,9 +45,9 @@ def get_user(service_person: ServicePerson = Depends(auth.get_current_service_pe
 
 
 # Проверка токена доступа сотрудника
-# Ответ вида: {"status": 200, "role": "manager"}
+# Ответ вида: {"status": 200, "role": "manager", "UUID": '124212wqafsa}
 @manager.get('/verificate/')
-def verificate(response = Depends(auth.verificate_token)):
+def verificate(response = Depends(auth.verificate_token_employ)):
     return response
 
 
