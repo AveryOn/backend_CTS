@@ -33,7 +33,7 @@ SECRET_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 OWNER_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 MANAGER_KEY = '9dd4f7a7efd9facf9cfbd59b2411c661'
 ALGORITHM = 'HS256'
-TOKEN_KEEP_ALIVE = 1
+TOKEN_KEEP_ALIVE = 30
 
 # Модель для работы с ХЕШЕМ паролей (валидация и создание)
 passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")

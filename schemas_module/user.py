@@ -36,7 +36,7 @@ class UserChangeData(UserBase):
     lastname: str | None=None
     image: str | None=None
     sex: str | None=None
-    edit_time: str | None=None
+    edit_time: str
 
     # orm_mode для корректного взаимодействия с БД
     class Config:

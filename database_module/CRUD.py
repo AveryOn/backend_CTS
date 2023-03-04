@@ -195,13 +195,29 @@ def update_user_password(db: Session, new_data: user.UserChangePassword, user_id
 
 # Обновление нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
 def update_user_all(db: Session, new_data: user.UserChangeData, user_id: int) -> user.User:
+
     # Создается копия данных с изменениями. Она не включает в себя поля с неопределенными значениями
-    new_data_copy = new_data.dict(exclude_none=True, exclude_unset=True)
-    db.execute(update(User).where(User.id == user_id).values(
-        **new_data_copy
-    ))
-    db.commit()
-    return user
+    try:
+        new_data_copy = new_data.dict(exclude_none=True, exclude_unset=True)
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось создать обьект изменяемых данных клиента')
+    
+    # Обновление данных в БД
+    try:
+        db.execute(update(User).where(User.id == user_id).values(
+            **new_data_copy
+        ))
+    except: 
+        raise HTTPException(status_code=500, detail='Не удалось обновить данные клиента в Базе Данных')
+    
+    # Фиксация сессии
+    try:
+        db.commit()
+    except: 
+        raise HTTPException(status_code=500, detail='Не удалось зафиксировать транзакцию обновления в Базе Данных')
+
+    return {"response_status": "Successful!"}
+
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ ГРУППЫ ТОВАРА <<<=============================================

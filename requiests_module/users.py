@@ -95,12 +95,9 @@ def get_user(user: User = Depends(auth.get_current_user)):
 
 
 # Обновление НЕСКОЛЬКИХ данных ПОЛЬЗОВАТЕЛЯ
-@user.put('/user-update/{user_id}/', response_model=User)
-def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)) -> User:
-    try:
-        return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
-    except:
-        raise HTTPException(status_code=401, detail=f"Не удалось обновить данные пользоваетеля {user.username}!")   
+@user.put('/user-update/{user_id}/')
+def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
 
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ
