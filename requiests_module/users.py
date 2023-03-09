@@ -3,7 +3,7 @@
 ##########################################################################################
 
 # Инструменты FastAPI
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 
 # Инструменты pydantic
 from pydantic import BaseModel
@@ -95,7 +95,7 @@ def get_user(user: User = Depends(auth.get_current_user)):
 
 
 # Обновление НЕСКОЛЬКИХ данных ПОЛЬЗОВАТЕЛЯ
-@user.put('/user-update/{user_id}/')
+@user.put('/{user_id}/user-update/')
 def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)):
     return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
 
@@ -117,6 +117,19 @@ def delete_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> d
         return {"response_status": 'Successful!'}
     except:
         raise HTTPException(status_code=400, detail="Не удалось удалить пользователя из базы")
+
+
+# ПРОВЕРКА сущестует ли email пользователя
+@user.post('/check-email/')
+def check_email(email: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.check_email(db=db, email=email)
+
+
+# ПРОВЕРКА сущестует ли username пользователя
+@user.post('/check-username/')
+def check_username(username: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.check_username(db=db, username=username)
+
 
 
 # ===============================>>> ОПЕРАЦИИ С КОММЕНТАРИЯМИ <<<=============================================

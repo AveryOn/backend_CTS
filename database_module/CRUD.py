@@ -219,6 +219,31 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user_id: int) ->
     return {"response_status": "Successful!"}
 
 
+# ПРОВЕРКА электронной почты ПОЛЬЗОВАТЕЛЯ на совпадения в БД
+def check_email(db: Session, email: str):
+    email_db = db.execute(select(User.email).filter_by(email=email)).scalar_one()
+    if email_db:
+        raise HTTPException(status_code=500, detail='Такой email уже существует')
+    else:
+        return email_db
+    
+    # if email_db == email:
+    #     raise HTTPException(status_code=400, detail='Такой email уже существует!')
+    # else:    
+    #     return {"response_status": "Successful!"}
+
+
+# ПРОВЕРКА username ПОЛЬЗОВАТЕЛЯ на совпадения в БД
+def check_username(db: Session, user_id: int, username: str):
+    try:
+        user = get_user_by_id(db=db, id=user_id)
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось получить пользователя по ID с Базы Данных')
+    if user.username == username:
+        raise HTTPException(status_code=400, detail='Такой никнейм уже существует!')
+    else:    
+        return {"response_status": "Successful!"}
+
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ ГРУППЫ ТОВАРА <<<=============================================
 
