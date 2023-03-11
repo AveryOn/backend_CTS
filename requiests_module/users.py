@@ -95,7 +95,13 @@ def get_user(user: User = Depends(auth.get_current_user)):
 
 
 # Обновление НЕСКОЛЬКИХ данных ПОЛЬЗОВАТЕЛЯ
-@user.put('/{user_id}/user-update/')
+@user.put('/{user_id}/user-update/', response_model=User)
+def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
+
+
+# УДАЛЕНИЕ НЕСКОЛЬКИХ данных ПОЛЬЗОВАТЕЛЯ
+@user.put('/{user_id}/user-delete-data/', response_model=User)
 def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)):
     return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
 
@@ -120,15 +126,15 @@ def delete_user(user_id: int, db: Session = Depends(sessions.get_db_USERS)) -> d
 
 
 # ПРОВЕРКА сущестует ли email пользователя
-@user.post('/check-email/')
-def check_email(email: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
-    return CRUD.check_email(db=db, email=email)
+@user.post('/{user_id}/check-email/')
+def check_email(user_id: int, email: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.check_email(db=db, user_id=user_id, email=email)
 
 
 # ПРОВЕРКА сущестует ли username пользователя
-@user.post('/check-username/')
-def check_username(username: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
-    return CRUD.check_username(db=db, username=username)
+@user.post('/{user_id}/check-username/')
+def check_username(user_id: int, username: str = Body(embed=True), db: Session = Depends(sessions.get_db_USERS)):
+    return CRUD.check_username(db=db, user_id=user_id, username=username)
 
 
 
