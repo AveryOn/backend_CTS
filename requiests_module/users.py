@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Body
 from pydantic import BaseModel
 
 # Импорт Моделей Pydantic
-from schemas_module.user import UserCreate, User, UserChangeData, UserChangePassword, ProductCart
+from schemas_module.user import UserCreate, User, UserChangeData, UserDeleteData, UserChangePassword, ProductCart
 from schemas_module.comment import CommentCreate, CommentChange
 from schemas_module.user_chat import UserChatCreate, UserChat
 
@@ -102,8 +102,8 @@ def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(se
 
 # УДАЛЕНИЕ НЕСКОЛЬКИХ данных ПОЛЬЗОВАТЕЛЯ
 @user.put('/{user_id}/user-delete-data/', response_model=User)
-def update_user(user_id: int, new_data: UserChangeData, db: Session = Depends(sessions.get_db_USERS)):
-    return CRUD.update_user_all(db=db, new_data=new_data, user_id=user_id)
+def update_user(user_id: int, delete_data: UserDeleteData, db: Session = Depends(sessions.get_db_USERS)) -> User:
+    return CRUD.delete_user_data(db=db, delete_data=delete_data, user_id=user_id)
 
 
 # Обновление пароля ПОЛЬЗОВАТЕЛЯ

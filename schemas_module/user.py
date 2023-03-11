@@ -27,8 +27,8 @@ class UserCreate(UserBase):
     creation_time: str
 
 
-# Модель для аннотации аргументов которые приходят с клиента (Для обновления данных ПОЛЬЗОВАТЕЛЯ)
-# Все поля включенные в эту модель могут быть изменены для конкретного пользователя в базе данных
+# Модель для аннотации аргументов которые приходят с клиента (Для ОБНОВЛЕНИЯ данных ПОЛЬЗОВАТЕЛЯ)
+# Все поля включенные в эту модель могут быть ИЗМЕНЕНЫ для конкретного пользователя в базе данных
 class UserChangeData(UserBase):
     username: str | None=None
     email: str | None=None
@@ -41,6 +41,16 @@ class UserChangeData(UserBase):
     # orm_mode для корректного взаимодействия с БД
     class Config:
         orm_mode = True
+
+# Модель для аннотации аргументов которые приходят с клиента (Для УДАЛЕНИЯ данных ПОЛЬЗОВАТЕЛЯ)
+# Все поля включенные в эту модель могут быть УДАЛЕНЫ для конкретного пользователя в базе данных
+class UserDeleteData(UserBase):
+    name: str | None=None
+    lastname: str | None=None
+    image: str | None=None
+    sex: str | None=None
+    edit_time: str
+
 
 class UserChangePassword(UserBase):
     password: str

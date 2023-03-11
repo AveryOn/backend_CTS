@@ -193,7 +193,7 @@ def update_user_password(db: Session, new_data: user.UserChangePassword, user_id
         return {"response_status": "Не удалось обновить пароль!"}
 
 
-# Обновление нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
+# ОБНОВЛЕНИЕ нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь обновляет не один атриубут например username, а несколько)
 def update_user_all(db: Session, new_data: user.UserChangeData, user_id: int) -> user.User:
 
     # Создается копия данных с изменениями. Она не включает в себя поля с неопределенными значениями
@@ -216,6 +216,37 @@ def update_user_all(db: Session, new_data: user.UserChangeData, user_id: int) ->
         user = get_user_by_id(db=db, id=user_id)
     except: 
         raise HTTPException(status_code=500, detail='Не удалось зафиксировать транзакцию обновления в Базе Данных')
+
+    return user
+
+
+# УДАЛЕНИЕ нескольких НЕОБЯЗАТЕЛЬНЫХ данных ПОЛЬЗОВАТЕЛЯ (Если пользователь УДАЛЯЕТ не один атриубут (например name), а несколько)
+def delete_user_data(db: Session, delete_data: user.UserDeleteData, user_id: int) -> user.User:
+
+    # Создается копия данных с изменениями. Она не включает в себя поля с неопределенными значениями
+    try:
+        delete_data_copy = delete_data.dict(exclude_none=True, exclude_unset=True, exclude={'edit_time'})
+        data_items = {}
+        for key in delete_data_copy.keys():
+            data_items.update({key: None})
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось создать обьект удаляемых данных клиента')
+    # return data_items
+
+    # Удаление данных в БД
+    try:
+        db.execute(update(User).where(User.id == user_id).values(
+            **data_items
+        ))
+    except: 
+        raise HTTPException(status_code=500, detail='Не удалось удалить данные клиента в Базе Данных')
+    
+    # Фиксация сессии
+    try:
+        db.commit()
+        user = get_user_by_id(db=db, id=user_id)
+    except: 
+        raise HTTPException(status_code=500, detail='Не удалось зафиксировать транзакцию удаления в Базе Данных')
 
     return user
 
