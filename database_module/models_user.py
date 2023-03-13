@@ -69,6 +69,7 @@ class ServicePerson(BaseUsers):
     email = Column(String, unique=True, index=True)     # Эл. почта  (!! ОБЯЗАТЕЛЬНЫЙ !!)
     role = Column(String, index=True)       # Роль пользователя в систиеме. Допустимые роли: 1) manager, 2) owner (!! ОБЯЗАТЕЛЬНЫЙ !!)
     allows = Column(String)     # Допустимые права для работы с магазином (НЕОБЯЗАТЕЛЬНЫЙ)
+    action_history = Column(String)         # История работы сотрудника (хранится в виде обьекта) (НЕОБЯЗАТЕЛЬНЫЙ)
     name = Column(String)       #  Имя пользоваателя  (НЕОБЯЗАТЕЛЬНЫЙ)
     lastname = Column(String)       # Фамилия пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)
     image = Column(String)      # Аватарка аккаунта пользователя  (НЕОБЯЗАТЕЛЬНЫЙ)

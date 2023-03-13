@@ -50,7 +50,7 @@ OWNER_KEY = '9c15a74bc8c1d16287da281402a2159d9cc1f1f18d7e26ddaba0357757b24df9'
 @owner.post('/create-new-person/', response_model=ServicePerson)
 def create_service_person(service_person: ServicePersonCreate, db: Session = Depends(sessions.get_db_USERS)) -> ServicePerson:
     # Проверка делает сравнение хэша ключа владельца и того ключа который пришел с клиента и если они равны то блок выполняется
-    if (auth.verify_password(input_password = service_person.OWNER_KEY, hashed_password = OWNER_KEY)):
+    if (service_person.OWNER_KEY == OWNER_KEY):
         new_person = CRUD.create_service_person(db=db, service_person=service_person)
         return new_person
     else:
@@ -58,12 +58,6 @@ def create_service_person(service_person: ServicePersonCreate, db: Session = Dep
 
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ТОВАРАМИ <<<============================================
-
-
-# СОЗДАНИЕ нового товара
-@owner.post('/{owner_UUID}/create-product/')
-def create_product(owner_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
-    return CRUD.create_product(db=db, creator_UUID=owner_UUID, product_data=product_data)
 
 
 # ИЗМЕНЕНИЕ (редактирование) товара

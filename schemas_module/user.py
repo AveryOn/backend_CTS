@@ -140,6 +140,7 @@ class ServicePerson(ServicePersonBase):
     email: str
     role: str
     allows: str | None=None
+    action_history: str | None=None
     name: str
     lastname: str
     image: str | None=None

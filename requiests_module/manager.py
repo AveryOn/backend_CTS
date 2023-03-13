@@ -57,11 +57,10 @@ def get_all_service_person(db: Session = Depends(sessions.get_db_USERS)) -> list
 
 # ===============================>>> БЛОК ОПЕРАЦИЙ С ТОВАРАМИ <<<============================================
 
-
-# Создание нового товара
-@manager.post('/{manager_UUID}/create-product/')
-def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
-        return CRUD.create_product(db=db, creator_UUID=manager_UUID, product_data=product_data)
+# # Создание нового товара
+# @manager.post('/{manager_UUID}/create-product/')
+# def create_product(manager_UUID: str, product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)):
+#         return CRUD.create_product(db=db, creator_UUID=manager_UUID, product_data=product_data)
 
 
 # ИЗМЕНЕНИЕ (редактирование) товара

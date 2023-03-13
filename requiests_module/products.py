@@ -11,6 +11,9 @@ from schemas_module.product import Product
 # Импорт Функций для взаимодействия с Базами Данных
 from database_module import CRUD
 
+# Импорт защитного-ключа
+from requiests_module.manager import MANAGER_KEY
+
 # Импорт Моделей Pydantic
 from schemas_module.product import ProductCreate, Product
 from schemas_module.comment import Comment
@@ -27,6 +30,11 @@ products = APIRouter(
     prefix='/product',
     tags=["products"],
 )
+
+# СОЗДАНИЕ нового товара
+@products.post('/create-new-product/', response_model=Product)
+def create_product(product_data: dict | ProductCreate, db: Session = Depends(sessions.get_db_PRODUCTS)) -> Product:
+    return CRUD.create_product(db=db, product_data=product_data)
 
 
 # ПОЛУЧЕНИЕ массива товаров с БД

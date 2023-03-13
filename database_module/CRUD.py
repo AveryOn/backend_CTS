@@ -318,7 +318,7 @@ def get_all_category_product(db: Session) -> list[product.ProductCategory]:
 
 
 # СОЗДАНИЕ нового товара в БД PRODUCTS
-def create_product(db: Session, creator_UUID: str, product_data: dict | product.ProductCreate):
+def create_product(db: Session, product_data: dict | product.ProductCreate):
     # Дополнительная верификация на ключ доступа сотрудника
     if product_data.get("MODERATOR_KEY") == MODERATOR_KEY or product_data.get("MODERATOR_KEY") == OWNER_KEY:
         try:
@@ -610,19 +610,39 @@ def get_all_service_person(db: Session):
 
 # Создание нового сотрудника рабочего персонала
 def create_service_person(db: Session, service_person: user.ServicePersonCreate) -> user.ServicePerson:
-    hashed_password = auth.hash_password(service_person.password)
-    new_service_person = ServicePerson(
-        UUID = service_person.UUID,
-        role = service_person.role,
-        email = service_person.email, 
-        name = service_person.name,
-        lastname = service_person.lastname,
-        username = service_person.username, 
-        hashed_password = hashed_password,
-        # allows = service_person.allows,
-        sex = service_person.sex
-    )
-    db.add(new_service_person)
-    db.commit()
-    db.refresh(new_service_person)
+    # Хеширование пароля
+    try:
+        hashed_password = auth.hash_password(service_person.password)
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось выполнить хеширование пароля')
+    
+    # Создание экземпляра сотрудника БД
+    try:
+        new_service_person = ServicePerson(
+            UUID = service_person.UUID,
+            role = service_person.role,
+            email = service_person.email, 
+            name = service_person.name,
+            lastname = service_person.lastname,
+            username = service_person.username, 
+            hashed_password = hashed_password,
+            allows = service_person.allows,
+            sex = service_person.sex,
+            creation_time = service_person.creation_time,
+        )
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось создать экземпляр сотрудника для Базы Данных')
+    
+    # Добавление сотрудника в сеанс БД
+    try:
+        db.add(new_service_person)
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось добавить сотрудника в сеанс Базы Данных')
+    
+    # Фиксация сеанса
+    try:
+        db.commit()
+        db.refresh(new_service_person)
+    except:
+        raise HTTPException(status_code=500, detail='Не удалось зафиксировать сохранить сотрудника в БД и зафиксировать транзакцию')
     return new_service_person

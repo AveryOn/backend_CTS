@@ -21,7 +21,7 @@ class ProductBase(BaseModel):
 class ProductCreate(ProductBase):
     article: int
     name: str
-    price: int
+    price: int | float
     group_name: str
     category_name: str
     tags: list
@@ -35,6 +35,7 @@ class ProductCreate(ProductBase):
     promotion: dict | None = None
     remains: int
     MODERATOR_KEY: str
+    UUID_employ: str
     # orm_mode для корректного взаимодействия с БД
     class Config:
         orm_mode = True
