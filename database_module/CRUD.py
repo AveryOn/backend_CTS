@@ -319,52 +319,54 @@ def get_all_category_product(db: Session) -> list[product.ProductCategory]:
 
 # СОЗДАНИЕ нового товара в БД PRODUCTS
 def create_product(db: Session, product_data: dict | product.ProductCreate):
-    # Дополнительная верификация на ключ доступа сотрудника
-    if product_data.get("MODERATOR_KEY") == MODERATOR_KEY or product_data.get("MODERATOR_KEY") == OWNER_KEY:
-        try:
-            # Дополнительная порверка на совподение имени группы для создаваемого товара. 
-            # Если имя группы (group_name) в теле запроса (product_data) не соответствует существующей в БД группе товара 
-            # То товар не создается
-            category = get_catrgory_product(db=db, category_name=product_data.get("category_name"))
-            group = get_group_product(db=db, group_name=product_data.get("group_name"))
-            if group and category:
-                # Дополнительная проверка типов для некоторых полей. 
-                # Если поле в значении None то переводить в строку его не нужно, а если обьект или массив то нужно
-                promotion = None
-                if not product_data.get("promotion") is None:
-                    promotion = str(product_data.get("promotion"))
-                else:
-                    promotion = None
-                try:
-                    product = Product(
-                        article = product_data.get("article"),
-                        name = product_data.get("name"),
-                        price = product_data.get("price"),
-                        group_name = str(product_data.get("group_name")),
-                        category_name = str(product_data.get("category_name")),
-                        tags = str(product_data.get("tags")),
-                        creation_time = product_data.get("creation_time"),
-                        creation_manager_UUID = creator_UUID,
-                        discount = product_data.get("discount"),
-                        specifications = str(product_data.get("specifications")),
-                        country_origin = product_data.get("country_origin"),
-                        description = product_data.get("description"),
-                        images = str(product_data.get("images")),
-                        promotion = promotion,
-                        remains = product_data.get("remains"),
-                    )
-                    db.add(product)
-                    db.commit()
-                    db.refresh(product)
-                    return product
-                except:
-                    raise HTTPException(status_code=500, detail="Не удалось создать новый товар")
-            else:
-                raise HTTPException(status_code=500, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
-        except:
-            raise HTTPException(status_code=404, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
-    else:
-        raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
+    # delete_data_copy = delete_data.dict(exclude_none=True, exclude_unset=True, exclude={'edit_time'})
+    return product_data
+    # # Дополнительная верификация на ключ доступа сотрудника
+    # if product_data.get("MODERATOR_KEY") == MODERATOR_KEY or product_data.get("MODERATOR_KEY") == OWNER_KEY:
+    #     try:
+    #         # Дополнительная порверка на совподение имени группы для создаваемого товара. 
+    #         # Если имя группы (group_name) в теле запроса (product_data) не соответствует существующей в БД группе товара 
+    #         # То товар не создается
+    #         category = get_catrgory_product(db=db, category_name=product_data.get("category_name"))
+    #         group = get_group_product(db=db, group_name=product_data.get("group_name"))
+    #         if group and category:
+    #             # Дополнительная проверка типов для некоторых полей. 
+    #             # Если поле в значении None то переводить в строку его не нужно, а если обьект или массив то нужно
+    #             promotion = None
+    #             if not product_data.get("promotion") is None:
+    #                 promotion = str(product_data.get("promotion"))
+    #             else:
+    #                 promotion = None
+    #             try:
+    #                 product = Product(
+    #                     article = product_data.get("article"),
+    #                     name = product_data.get("name"),
+    #                     price = product_data.get("price"),
+    #                     group_name = str(product_data.get("group_name")),
+    #                     category_name = str(product_data.get("category_name")),
+    #                     tags = str(product_data.get("tags")),
+    #                     creation_time = product_data.get("creation_time"),
+    #                     creation_manager_UUID = product_data.creation_manager_UUID,
+    #                     discount = product_data.get("discount"),
+    #                     specifications = str(product_data.get("specifications")),
+    #                     country_origin = product_data.get("country_origin"),
+    #                     description = product_data.get("description"),
+    #                     images = str(product_data.get("images")),
+    #                     promotion = promotion,
+    #                     remains = product_data.get("remains"),
+    #                 )
+    #                 db.add(product)
+    #                 db.commit()
+    #                 db.refresh(product)
+    #                 return product
+    #             except:
+    #                 raise HTTPException(status_code=500, detail="Не удалось создать новый товар")
+    #         else:
+    #             raise HTTPException(status_code=500, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
+    #     except:
+    #         raise HTTPException(status_code=404, detail="Вы пытаетесь создать товар указав имя Группы или Категории товара, которой не существует!")
+    # else:
+    #     raise HTTPException(status_code=401, detail="Ключ модератора неверный!")
 
 
 # ПОЛУЧЕНИЕ СПИСКА товара с БД PRODUCTS

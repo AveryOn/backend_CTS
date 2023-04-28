@@ -27,7 +27,7 @@ class ProductCreate(ProductBase):
     tags: list
     creation_time: int
     creation_manager_UUID: str
-    discount: int | None = None
+    discount: float | None = None
     specifications: dict
     country_origin: str
     description: str
@@ -35,7 +35,6 @@ class ProductCreate(ProductBase):
     promotion: dict | None = None
     remains: int
     MODERATOR_KEY: str
-    UUID_employ: str
     # orm_mode для корректного взаимодействия с БД
     class Config:
         orm_mode = True
